@@ -59,6 +59,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isToursMenuOpen, setIsToursMenuOpen] = useState(false)
+  const [isMobileToursOpen, setIsMobileToursOpen] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
@@ -126,16 +127,18 @@ export default function Header() {
                     {item.name === "Tours" && <ChevronDown className="w-4 h-4" />}
                   </Link>
 
-                  {/* Mega Menu */}
+                  {/* Desktop Mega Menu */}
                   {item.name === "Tours" && isToursMenuOpen && (
                     <div
-                      className="absolute left-1/2 -translate-x-[50%] top-[60%] mt-2 w-[95vw] max-w-[1000px] bg-white shadow-xl rounded-lg p-6 grid grid-cols-1 md:grid-cols-4 gap-8 z-50"
+                      className="absolute z-50 mt-2 bg-white shadow-xl rounded-lg p-4 md:p-6
+                        w-full left-0 -translate-x-0 flex flex-col gap-6
+                        md:w-[80vw] md:max-w-[1000px] md:left-1/2 md:-translate-x-1/2 md:grid md:grid-cols-4 md:gap-8 hidden md:grid"
                       style={{ minWidth: '320px' }}
                       onMouseEnter={() => setIsToursMenuOpen(true)}
                       onMouseLeave={() => setIsToursMenuOpen(false)}
                     >
                       {/* Tour Categories */}
-                      <div className="col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
                         {tourCategories.map((category) => (
                           <div key={category.name}>
                             <h3 className="font-semibold text-bronze-900 mb-3 text-lg">{category.name}</h3>
@@ -155,7 +158,7 @@ export default function Header() {
                         ))}
                       </div>
                       {/* Featured Destinations */}
-                      <div className="col-span-1 border-l border-bronze-100 pl-6">
+                      <div className="md:col-span-1 md:border-l border-bronze-100 md:pl-6">
                         <h3 className="font-semibold text-bronze-900 mb-3 text-lg">Featured Destinations</h3>
                         <div className="flex flex-col gap-4">
                           {featuredDestinations.map((destination) => (
@@ -215,55 +218,12 @@ export default function Header() {
                   {navigation.map((item) => (
                     <div key={item.name}>
                       {item.name === "Tours" ? (
-                        <div className="space-y-4">
-                          <div className="font-medium py-2 text-bronze-700">Tours</div>
-                          <div className="pl-4 space-y-6">
-                            {tourCategories.map((category) => (
-                              <div key={category.name}>
-                                <h3 className="font-semibold text-bronze-900 mb-2">{category.name}</h3>
-                                <ul className="space-y-2">
-                                  {category.items.map((item) => (
-                                    <li key={item.name}>
-                                      <Link
-                                        href={item.href}
-                                        onClick={() => setIsOpen(false)}
-                                        className="text-bronze-700 hover:text-gold-500 transition-colors block py-1"
-                                      >
-                                        {item.name}
-                                      </Link>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            ))}
-                            <div>
-                              <h3 className="font-semibold text-bronze-900 mb-2">Featured Destinations</h3>
-                              <div className="space-y-3">
-                                {featuredDestinations.map((destination) => (
-                                  <Link
-                                    key={destination.name}
-                                    href={destination.href}
-                                    onClick={() => setIsOpen(false)}
-                                    className="block"
-                                  >
-                                    <div className="relative h-20 rounded-lg overflow-hidden">
-                                      <Image
-                                        src={destination.image}
-                                        alt={destination.name}
-                                        fill
-                                        className="object-cover"
-                                      />
-                                      <div className="absolute inset-0 bg-black/40" />
-                                      <span className="absolute bottom-2 left-2 text-white font-medium">
-                                        {destination.name}
-                                      </span>
-                                    </div>
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        <button
+                          className="w-full text-left font-medium py-2 text-bronze-700 flex items-center justify-between"
+                          onClick={() => setIsMobileToursOpen(true)}
+                        >
+                          Tours <ChevronDown className="w-4 h-4" />
+                        </button>
                       ) : (
                         <Link
                           href={item.href}
@@ -281,6 +241,89 @@ export default function Header() {
                 </div>
               </div>
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile Tours Flyout Mega Menu */}
+        <AnimatePresence>
+          {isMobileToursOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/40 z-50"
+                onClick={() => setIsMobileToursOpen(false)}
+              />
+              {/* Flyout */}
+              <motion.div
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'tween' }}
+                className="fixed top-0 left-0 h-full w-[85vw] max-w-xs bg-white z-50 shadow-2xl flex flex-col"
+              >
+                <div className="flex items-center justify-between p-4 border-b">
+                  <span className="font-bold text-lg text-bronze-900">Tours</span>
+                  <button onClick={() => setIsMobileToursOpen(false)}>
+                    <X className="w-6 h-6 text-bronze-900" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                  {tourCategories.map((category) => (
+                    <div key={category.name}>
+                      <h3 className="font-semibold text-bronze-900 mb-2">{category.name}</h3>
+                      <ul className="space-y-2">
+                        {category.items.map((item) => (
+                          <li key={item.name}>
+                            <Link
+                              href={item.href}
+                              onClick={() => {
+                                setIsMobileToursOpen(false)
+                                setIsOpen(false)
+                              }}
+                              className="text-bronze-700 hover:text-gold-500 transition-colors block py-1"
+                            >
+                              {item.name}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                  <div>
+                    <h3 className="font-semibold text-bronze-900 mb-2">Featured Destinations</h3>
+                    <div className="space-y-3">
+                      {featuredDestinations.map((destination) => (
+                        <Link
+                          key={destination.name}
+                          href={destination.href}
+                          onClick={() => {
+                            setIsMobileToursOpen(false)
+                            setIsOpen(false)
+                          }}
+                          className="block"
+                        >
+                          <div className="relative h-20 rounded-lg overflow-hidden">
+                            <Image
+                              src={destination.image}
+                              alt={destination.name}
+                              fill
+                              className="object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/40" />
+                            <span className="absolute bottom-2 left-2 text-white font-medium">
+                              {destination.name}
+                            </span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </header>
