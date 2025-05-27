@@ -14,9 +14,9 @@ const navigation = [
   // { name: "Destinations", href: "/destinations" },
   // { name: "Hotels", href: "/hotels" },
   // { name: "Packages", href: "/packages" },
-  { name: "About", href: "/about" },
-  { name: "Blog", href: "/blog" },
-  { name: "Contact", href: "/contact" },
+  { name: "About", href: "/" },
+  { name: "Blog", href: "/" },
+  { name: "Contact", href: "/" },
 ]
 
 const tourCategories = [
