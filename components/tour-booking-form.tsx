@@ -224,7 +224,7 @@ export default function TourBookingForm() {
                   >
                     <div>
                       <Label className="text-lg font-semibold mb-6 block">What would you like to book?</Label>
-                      <div className="grid md:grid-cols-3 gap-6">
+                      <div className="grid md:grid-cols-2 gap-6">
                         {serviceTypes.map((service) => (
                           <motion.div
                             key={service.id}
