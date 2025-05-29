@@ -34,13 +34,13 @@ const serviceTypes = [
     icon: Hotel,
     color: "bg-bronze-100 text-bronze-700 border-bronze-300",
   },
-  {
-    id: "packages",
-    name: "Complete Packages",
-    description: "All-inclusive travel experiences",
-    icon: Package,
-    color: "bg-cream-100 text-bronze-700 border-cream-300",
-  },
+  // {
+  //   id: "packages",
+  //   name: "Complete Packages",
+  //   description: "All-inclusive travel experiences",
+  //   icon: Package,
+  //   color: "bg-cream-100 text-bronze-700 border-cream-300",
+  // },
 ]
 
 const destinations = [
