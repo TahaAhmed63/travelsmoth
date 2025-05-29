@@ -10,6 +10,7 @@ import { useState } from "react"
 import TourBookingForm from "@/components/tour-booking-form"
 import FeaturedHotels from "@/components/featured-hotels"
 import { useRouter } from "next/navigation"
+import FeaturedToursCarousel from "@/components/featured-tours-carousel"
 
 const featuredTours = [
   {
@@ -162,59 +163,7 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredTours.map((tour, index) => (
-              <motion.div
-                key={tour.id}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -10 }}
-                className="group cursor-pointer"
-                onClick={() => handleTourClick(tour.title.toLowerCase().replace(/\s+/g, '-'))}
-              >
-                <Card className="overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
-                  <div className="relative overflow-hidden">
-                    <img
-                      src={tour.image || "/placeholder.svg"}
-                      alt={tour.title}
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <Badge className="absolute top-4 left-4 bg-gold-500 text-white">{tour.category}</Badge>
-                  </div>
-
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium">{tour.rating}</span>
-                      </div>
-                      <span className="text-sm text-bronze-500">({tour.reviews} reviews)</span>
-                    </div>
-
-                    <h3 className="text-xl font-bold text-bronze-900 mb-2">{tour.title}</h3>
-
-                    <div className="flex items-center gap-4 text-sm text-bronze-600 mb-4">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {tour.destination}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {tour.duration}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-gold-600">{tour.price}</span>
-                      <Button className="bg-gold-500 hover:bg-gold-600">View Details</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+          <FeaturedToursCarousel />
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -235,7 +184,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Hotels Section */}
-      {/* <FeaturedHotels /> */}
+      <FeaturedHotels />
 
       {/* Why Choose Us Section */}
       <section className="py-20 bg-white">
