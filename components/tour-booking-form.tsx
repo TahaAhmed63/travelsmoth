@@ -12,11 +12,11 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Users, ArrowRight, ArrowLeft, Check, Plane, Hotel, Package } from "lucide-react"
 
 const steps = [
-  // { id: 1, title: "Service Type", icon: Package },
-  { id: 1, title: "Selection", icon: MapPin },
-  { id: 2, title: "Details", icon: Calendar },
-  { id: 3, title: "Travelers", icon: Users },
-  { id: 4, title: "Confirmation", icon: Check },
+  { id: 1, title: "Service Type", icon: Package },
+  { id: 2, title: "Selection", icon: MapPin },
+  { id: 3, title: "Details", icon: Calendar },
+  { id: 4, title: "Travelers", icon: Users },
+  { id: 5, title: "Confirmation", icon: Check },
 ]
 
 const serviceTypes = [
@@ -213,7 +213,7 @@ export default function TourBookingForm() {
             <CardContent className="p-8">
               <AnimatePresence mode="wait">
                 {/* Step 1: Service Type Selection */}
-                {/* {currentStep === 1 && (
+                {currentStep === 1 && (
                   <motion.div
                     key="step1"
                     initial={{ opacity: 0, x: 50 }}
@@ -245,10 +245,10 @@ export default function TourBookingForm() {
                       </div>
                     </div>
                   </motion.div>
-                )} */}
+                )}
 
                 {/* Step 2: Selection */}
-                {currentStep === 1 && (
+                {currentStep === 2 && (
                   <motion.div
                     key="step2"
                     initial={{ opacity: 0, x: 50 }}
@@ -301,7 +301,7 @@ export default function TourBookingForm() {
                 )}
 
                 {/* Step 3: Travel Details */}
-                {currentStep === 2 && (
+                {currentStep === 3 && (
                   <motion.div
                     key="step3"
                     initial={{ opacity: 0, x: 50 }}
@@ -413,7 +413,7 @@ export default function TourBookingForm() {
                 )}
 
                 {/* Step 4: Traveler Information */}
-                {currentStep === 3 && (
+                {currentStep === 4 && (
                   <motion.div
                     key="step4"
                     initial={{ opacity: 0, x: 50 }}
@@ -531,7 +531,7 @@ export default function TourBookingForm() {
                 )}
 
                 {/* Step 5: Confirmation */}
-                {currentStep === 4 && (
+                {currentStep === 5 && (
                   <motion.div
                     key="step5"
                     initial={{ opacity: 0, x: 50 }}
