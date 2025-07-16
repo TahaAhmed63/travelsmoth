@@ -11,6 +11,7 @@ import TourBookingForm from "@/components/tour-booking-form"
 import FeaturedHotels from "@/components/featured-hotels"
 import { useRouter } from "next/navigation"
 import FeaturedToursCarousel from "@/components/featured-tours-carousel"
+import UmrahPackagesSection from "@/components/umrah-packages-section"
 
 const featuredTours = [
   {
@@ -185,7 +186,7 @@ export default function HomePage() {
 
       {/* Featured Hotels Section */}
       <FeaturedHotels />
-
+      <UmrahPackagesSection />
       {/* Why Choose Us Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">

@@ -11,12 +11,12 @@ import Image from "next/image"
 const navigation = [
   { name: "Home", href: "/" },
   { name: "Tours", href: "/tours" },
-  // { name: "Destinations", href: "/destinations" },
-  // { name: "Hotels", href: "/hotels" },
-  // { name: "Packages", href: "/packages" },
-  { name: "About", href: "/" },
-  { name: "Blog", href: "/" },
-  { name: "Contact", href: "/" },
+  { name: "Destinations", href: "/destinations" },
+  { name: "Hotels", href: "/hotels" },
+  { name: "Packages", href: "/packages" },
+  { name: "About", href: "/about" },
+  // { name: "Blog", href: "/" },
+  { name: "Contact", href: "/contact" },
 ]
 
 const tourCategories = [

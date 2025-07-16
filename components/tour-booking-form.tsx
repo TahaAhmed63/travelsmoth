@@ -34,13 +34,13 @@ const serviceTypes = [
     icon: Hotel,
     color: "bg-bronze-100 text-bronze-700 border-bronze-300",
   },
-  // {
-  //   id: "packages",
-  //   name: "Complete Packages",
-  //   description: "All-inclusive travel experiences",
-  //   icon: Package,
-  //   color: "bg-cream-100 text-bronze-700 border-cream-300",
-  // },
+  {
+    id: "umrah",
+    name: "Umrah Packages",
+    description: "Sacred pilgrimage experiences",
+    icon: Package,
+    color: "bg-cream-100 text-bronze-700 border-cream-300",
+  },
 ]
 
 const destinations = [
@@ -92,12 +92,36 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=300&h=200&fit=crop",
     type: "packages",
   },
+  {
+    id: "umrah-economy",
+    name: "Economy Umrah Package",
+    price: 1899,
+    duration: "14 days",
+    image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=300&h=200&fit=crop",
+    type: "umrah",
+  },
+  {
+    id: "umrah-premium",
+    name: "Premium Umrah Package",
+    price: 2899,
+    duration: "14 days",
+    image: "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=300&h=200&fit=crop",
+    type: "umrah",
+  },
+  {
+    id: "umrah-executive",
+    name: "Executive Umrah Package",
+    price: 4299,
+    duration: "14 days",
+    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop",
+    type: "umrah",
+  },
 ]
 
 export default function TourBookingForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState({
-    serviceType: "tours",
+    serviceType: "",
     destination: "",
     startDate: "",
     endDate: "",
@@ -224,7 +248,7 @@ export default function TourBookingForm() {
                   >
                     <div>
                       <Label className="text-lg font-semibold mb-6 block">What would you like to book?</Label>
-                      <div className="grid md:grid-cols-2 gap-6">
+                      <div className="grid md:grid-cols-3 gap-6">
                         {serviceTypes.map((service) => (
                           <motion.div
                             key={service.id}
