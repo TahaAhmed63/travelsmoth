@@ -414,7 +414,7 @@ export default function UmrahPackageDetailPage() {
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="day-1" className="w-full">
-                  <TabsList className="overflow-x-auto flex-nowrap">
+                  <TabsList className="grid grid-cols-5 md:grid-cols-8 gap-2 overflow-x-auto h-[9.5rem] md:h-[5.5rem] ">
                     {umrahPackage.itinerary.map((day) => (
                       <TabsTrigger key={day.day} value={`day-${day.day}`}>Day {day.day}</TabsTrigger>
                     ))}

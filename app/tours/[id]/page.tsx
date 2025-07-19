@@ -341,7 +341,7 @@ export default function TourDetailPage() {
             {/* Main Content */}
             <div className="lg:col-span-2 w-full">
               <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-4 sm:mb-8 overflow-x-auto">
+                <TabsList className="grid w-full grid-cols-5 sm:grid-cols-3 md:grid-cols-5 mb-4 sm:mb-8 overflow-x-auto">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
                   <TabsTrigger value="accommodations">Hotels</TabsTrigger>
