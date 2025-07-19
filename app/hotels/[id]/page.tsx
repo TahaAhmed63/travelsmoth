@@ -223,12 +223,12 @@ export default function HotelDetailPage() {
         </div>
 
         {/* Back Button */}
-        <Link
+        {/* <Link
           href="/hotels"
           className="absolute top-6 left-6 z-10 bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
-        </Link>
+        </Link> */}
 
         {/* Action Buttons */}
         <div className="absolute top-6 right-6 z-10 flex gap-2">
@@ -262,7 +262,7 @@ export default function HotelDetailPage() {
 
               <div className="flex items-center gap-4">
                 <div className="text-white">
-                  <span className="text-3xl font-bold">${hotelData.price}</span>
+                  <span className="text-2xl md:text-3xl  font-bold">${hotelData.price}</span>
                   {hotelData.originalPrice && (
                     <span className="text-lg text-gray-300 line-through ml-2">${hotelData.originalPrice}</span>
                   )}

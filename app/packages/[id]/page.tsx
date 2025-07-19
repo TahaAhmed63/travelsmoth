@@ -344,7 +344,7 @@ export default function UmrahPackageDetailPage() {
                 </div>
               </div>
               <div className="flex items-center gap-4 mt-2">
-                <span className="text-2xl font-bold text-gold-400">${umrahPackage.price}</span>
+                <span className="text-1xl md:text-2xl font-bold text-gold-400">${umrahPackage.price}</span>
                 <span className="line-through text-white/60">${umrahPackage.originalPrice}</span>
                 <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
                   <DialogTrigger asChild>
