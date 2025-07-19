@@ -1,12 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Menu, X, Phone, Mail, ChevronDown } from "lucide-react"
 import Image from "next/image"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import TourBookingForm from "@/components/tour-booking-form"
+import MainBookingForm from "@/components/main-booking-form"
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -60,7 +63,10 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isToursMenuOpen, setIsToursMenuOpen] = useState(false)
   const [isMobileToursOpen, setIsMobileToursOpen] = useState(false)
+  const [isBookingOpen, setIsBookingOpen] = useState(false)
   const pathname = usePathname()
+  const navRef = useRef<HTMLDivElement>(null)
+  const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -69,6 +75,17 @@ export default function Header() {
 
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  useEffect(() => {
+    function updateMenuWidth() {
+      if (navRef.current) {
+        setMenuWidth(navRef.current.offsetWidth)
+      }
+    }
+    updateMenuWidth()
+    window.addEventListener('resize', updateMenuWidth)
+    return () => window.removeEventListener('resize', updateMenuWidth)
   }, [])
 
   return (
@@ -95,11 +112,11 @@ export default function Header() {
       {/* Main Header */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? "bg-white/95 backdrop-blur-md shadow-lg" : "bg-transparent"
+          isScrolled ? "bg-black backdrop-blur-md shadow-lg py-3" : "bg-transparent"
         }`}
         style={{ top: "40px" }}
       >
-        <nav className="container mx-auto px-4">
+        <nav ref={navRef} className="container mx-auto px-4">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
@@ -131,9 +148,9 @@ export default function Header() {
                   {item.name === "Tours" && isToursMenuOpen && (
                     <div
                       className="absolute z-50 mt-2 bg-white shadow-xl rounded-lg p-4 md:p-6
-                        w-full left-0 -translate-x-0 flex flex-col gap-6
-                        md:w-[80vw] md:max-w-[1000px] md:left-1/2 md:-translate-x-1/2 md:grid md:grid-cols-4 md:gap-8 hidden md:grid"
-                      style={{ minWidth: '320px' }}
+                        left-3/2 -translate-x-1/2 flex flex-col gap-6
+                        md:w-[1000px] md:max-w-[90vw] md:left-[18vw] md:-translate-x-1/2 md:grid md:grid-cols-4 md:gap-8 hidden md:grid"
+                        style={{ minWidth: 320 }}
                       onMouseEnter={() => setIsToursMenuOpen(true)}
                       onMouseLeave={() => setIsToursMenuOpen(false)}
                     >
@@ -187,11 +204,27 @@ export default function Header() {
                   )}
                 </div>
               ))}
+              {/* Call Our Expert Button */}
+              {/* <a
+                href="tel:+15551234567"
+                className="ml-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-lg shadow px-6 py-2 transition-colors text-base flex items-center gap-2"
+                style={{ boxShadow: '0 2px 8px 0 rgba(218,165,32,0.15)' }}
+              >
+                <Phone className="w-5 h-5" />
+                Call Our Expert
+              </a> */}
             </div>
 
             {/* CTA Button */}
             <div className="hidden lg:block">
-              <Button className="bg-gold-500 hover:bg-gold-600 text-white">Book Now</Button>
+              <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen} >
+                <DialogTrigger asChild>
+                  <Button className="bg-gold-500 hover:bg-gold-600 text-white">Book Now</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-[50%]">
+                  <MainBookingForm />
+                </DialogContent>
+              </Dialog>
             </div>
 
             {/* Mobile Menu Button */}
@@ -237,6 +270,15 @@ export default function Header() {
                       )}
                     </div>
                   ))}
+                  {/* Call Our Expert Button (Mobile) */}
+                  <a
+                    href="tel:+15551234567"
+                    className="bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-lg shadow px-6 py-3 transition-colors text-base flex items-center gap-2 justify-center mt-2"
+                    style={{ boxShadow: '0 2px 8px 0 rgba(218,165,32,0.15)' }}
+                  >
+                    <Phone className="w-5 h-5" />
+                    Call Our Expert
+                  </a>
                   <Button className="bg-gold-500 hover:bg-gold-600 text-white mt-4">Book Now</Button>
                 </div>
               </div>
@@ -327,6 +369,18 @@ export default function Header() {
           )}
         </AnimatePresence>
       </header>
+      <a
+        href="tel:+15551234567"
+        className="fixed z-50 bottom-6 right-6 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full shadow-lg px-4 py-3 flex items-center gap-2 transition-all duration-300 text-lg group"
+        style={{ boxShadow: '0 2px 16px 0 rgba(218,165,32,0.25)' }}
+      >
+        <Phone className="w-6 h-6" />
+        <span
+          className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-xs group-hover:opacity-100 group-focus:max-w-xs group-focus:opacity-100 transition-all duration-300 whitespace-nowrap"
+        >
+          Call Our Expert
+        </span>
+      </a>
     </>
   )
 }

@@ -52,13 +52,13 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-6">
               <Image
-                src="/travelsmooth-logo.png" // Path to your Travel Smooth logo image
+                src="/travel-smooth-logo.png" // Path to your Travel Smooth logo image
                 alt="Travel Smooth Logo"
-                width={40} // Adjust the width as needed
+                width={150} // Adjust the width as needed
                 height={40} // Adjust the height as needed
                 className="rounded-full"
               />
-              <span className="text-2xl font-bold">Travel Smooth</span>
+              {/* <span className="text-2xl font-bold">Travel Smooth</span> */}
             </Link>
 
             <p className="text-gray-300 mb-6 max-w-md">
@@ -180,8 +180,7 @@ export default function Footer() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
             <p>&copy; 2024 Travel Smooth. All rights reserved.</p>
-            <p>Designed with ❤️ for travelers worldwide</p>
-          </div>
+            <p>Design & Powered By <a href="https://www.vortexsolution.io/" class="hover:opacity-80"><span class="text-purple-500">Vortex</span><span class="text-[#0066ff]">Solution</span></a>      </p>    </div>
         </div>
       </div>
     </footer>

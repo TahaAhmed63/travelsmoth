@@ -291,7 +291,7 @@ export default function HotelDetailPage() {
               <Tabs defaultValue="overview" className="w-full">
                 <TabsList className="grid w-full grid-cols-5 mb-8">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="rooms">Rooms</TabsTrigger>
+                  {/* <TabsTrigger value="rooms">Rooms</TabsTrigger> */}
                   <TabsTrigger value="facilities">Facilities</TabsTrigger>
                   <TabsTrigger value="gallery">Gallery</TabsTrigger>
                   <TabsTrigger value="reviews">Reviews</TabsTrigger>
