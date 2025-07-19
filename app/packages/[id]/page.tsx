@@ -302,12 +302,12 @@ export default function UmrahPackageDetailPage() {
         </div>
 
         {/* Back Button */}
-        <Link
+        {/* <Link
           href="/packages"
           className="absolute top-6 left-6 z-10 bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
-        </Link>
+        </Link> */}
 
         {/* Action Buttons */}
         <div className="absolute top-6 right-6 z-10 flex gap-2">
