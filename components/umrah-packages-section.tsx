@@ -215,7 +215,7 @@ export default function UmrahPackagesSection() {
 
         {/* Modern Tab Navigation */}
         <div className="flex justify-center mb-8 md:mb-12">
-          <div className="bg-white rounded-2xl p-1.5 sm:p-2 shadow-xl border border-bronze-100 w-full max-w-[55%]">
+          <div className="bg-white rounded-2xl p-1.5 sm:p-2 shadow-xl border border-bronze-100 w-full max-w-[85%] md:max-w-[58%]">
             {/* Mobile: 2 rows, Desktop: 1 row */}
             <div className="block md:hidden w-full">
               <div className="flex gap-1 sm:gap-2 w-full mb-2">
