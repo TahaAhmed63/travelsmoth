@@ -335,13 +335,13 @@ export default function TourDetailPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-3 gap-12">
+      <section className="py-8 sm:py-10">
+        <div className="container mx-auto px-2 sm:px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
             {/* Main Content */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 w-full">
               <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-5 mb-8">
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-4 sm:mb-8 overflow-x-auto">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
                   <TabsTrigger value="accommodations">Hotels</TabsTrigger>
@@ -350,7 +350,7 @@ export default function TourDetailPage() {
                 </TabsList>
 
                 {/* Overview Tab */}
-                <TabsContent value="overview" className="space-y-8">
+                <TabsContent value="overview" className="space-y-6 sm:space-y-8">
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-2xl text-bronze-900">Tour Description</CardTitle>
@@ -358,7 +358,7 @@ export default function TourDetailPage() {
                     <CardContent>
                       <p className="text-bronze-700 leading-relaxed mb-6">{tourData.description}</p>
 
-                      <div className="grid md:grid-cols-2 gap-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                         <div>
                           <h3 className="text-xl font-semibold text-bronze-900 mb-4">Tour Highlights</h3>
                           <ul className="space-y-2">
@@ -401,7 +401,7 @@ export default function TourDetailPage() {
                   </Card>
 
                   {/* Included/Not Included */}
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <Card>
                       <CardHeader>
                         <CardTitle className="text-xl text-bronze-900 flex items-center gap-2">
@@ -443,7 +443,7 @@ export default function TourDetailPage() {
                 </TabsContent>
 
                 {/* Itinerary Tab */}
-                <TabsContent value="itinerary" className="space-y-6">
+                <TabsContent value="itinerary" className="space-y-4 sm:space-y-6">
                   {tourData.itinerary.map((day, index) => (
                     <Card key={index}>
                       <CardHeader>
@@ -457,7 +457,7 @@ export default function TourDetailPage() {
                       <CardContent>
                         <p className="text-bronze-700 mb-4">{day.description}</p>
 
-                        <div className="grid md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                           <div>
                             <h4 className="font-semibold text-bronze-900 mb-2 flex items-center gap-2">
                               <Calendar className="w-4 h-4" />
@@ -500,11 +500,11 @@ export default function TourDetailPage() {
                 </TabsContent>
 
                 {/* Accommodations Tab */}
-                <TabsContent value="accommodations" className="space-y-6">
+                <TabsContent value="accommodations" className="space-y-4 sm:space-y-6">
                   {tourData.accommodations.map((hotel, index) => (
                     <Card key={index}>
-                      <CardContent className="p-6">
-                        <div className="grid md:grid-cols-3 gap-6">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                           <img
                             src={hotel.image || "/placeholder.svg"}
                             alt={hotel.name}
@@ -544,7 +544,7 @@ export default function TourDetailPage() {
 
                 {/* Gallery Tab */}
                 <TabsContent value="gallery">
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                     {tourData.gallery.map((image, index) => (
                       <motion.div
                         key={index}
@@ -568,8 +568,8 @@ export default function TourDetailPage() {
                 </TabsContent>
 
                 {/* Reviews Tab */}
-                <TabsContent value="reviews" className="space-y-6">
-                  <div className="flex items-center justify-between mb-6">
+                <TabsContent value="reviews" className="space-y-4 sm:space-y-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-0">
                     <div>
                       <h3 className="text-2xl font-bold text-bronze-900">Customer Reviews</h3>
                       <div className="flex items-center gap-2 mt-2">
@@ -586,8 +586,8 @@ export default function TourDetailPage() {
 
                   {tourData.reviews.map((review, index) => (
                     <Card key={index}>
-                      <CardContent className="p-6">
-                        <div className="flex items-start gap-4">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row items-start gap-4">
                           <img
                             src={review.avatar || "/placeholder.svg"}
                             alt={review.name}
@@ -595,7 +595,7 @@ export default function TourDetailPage() {
                           />
 
                           <div className="flex-1">
-                            <div className="flex items-center justify-between mb-2">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-2 sm:gap-0">
                               <h4 className="font-semibold text-bronze-900">{review.name}</h4>
                               <span className="text-sm text-bronze-500">{review.date}</span>
                             </div>
@@ -617,7 +617,7 @@ export default function TourDetailPage() {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-6 mt-8 lg:mt-0">
               {/* Booking Card */}
               <Card className="sticky top-6">
                 <CardHeader>

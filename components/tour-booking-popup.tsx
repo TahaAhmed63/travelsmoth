@@ -80,7 +80,7 @@ export default function TourBookingPopup({ preSelectedTour, onClose }: TourBooki
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="w-full max-w-md p-2 sm:p-4 overflow-y-auto max-h-[90vh]">
       {/* Close Button */}
       <button onClick={onClose} className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors">
         <X className="w-5 h-5" />
