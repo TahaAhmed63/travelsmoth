@@ -180,7 +180,7 @@ export default function Footer() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
             <p>&copy; 2024 Travel Smooth. All rights reserved.</p>
-            <p>Design & Powered By <a href="https://www.vortexsolution.io/" class="hover:opacity-80"><span class="text-purple-500">Vortex</span><span class="text-[#0066ff]">Solution</span></a>      </p>    </div>
+            <p>Design & Powered By <a href="https://www.vortexsolution.io/" className="hover:opacity-80"><span className="text-purple-500">Vortex</span><span className="text-[#0066ff]">Solution</span></a>      </p>    </div>
         </div>
       </div>
     </footer>
