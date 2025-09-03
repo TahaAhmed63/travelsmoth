@@ -1,7 +1,8 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -9,132 +10,169 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Star, MapPin, Clock, Users, Search, Filter } from "lucide-react"
 
-const tours = [
-  {
-    id: 1,
-    title: "Bali Paradise Adventure",
-    destination: "Bali, Indonesia",
-    duration: "7 days",
-    price: 1299,
-    rating: 4.9,
-    reviews: 234,
-    image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?w=400&h=300&fit=crop&crop=center",
-    category: "Adventure",
-    groupSize: "8-12 people",
-    highlights: ["Temple visits", "Rice terraces", "Beach relaxation", "Cultural experiences"],
-  },
-  {
-    id: 2,
-    title: "European Grand Tour",
-    destination: "Europe",
-    duration: "14 days",
-    price: 2899,
-    rating: 4.8,
-    reviews: 189,
-    image: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=400&h=300&fit=crop&crop=center",
-    category: "Cultural",
-    groupSize: "12-16 people",
-    highlights: ["Historic cities", "Art museums", "Local cuisine", "Architecture tours"],
-  },
-  {
-    id: 3,
-    title: "Safari Kenya Experience",
-    destination: "Kenya, Africa",
-    duration: "10 days",
-    price: 2199,
-    rating: 4.9,
-    reviews: 156,
-    image: "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=400&h=300&fit=crop&crop=center",
-    category: "Wildlife",
-    groupSize: "6-10 people",
-    highlights: ["Big Five safari", "Masai Mara", "Cultural villages", "Hot air balloon"],
-  },
-  {
-    id: 4,
-    title: "Japan Cherry Blossom",
-    destination: "Japan",
-    duration: "12 days",
-    price: 3299,
-    rating: 4.9,
-    reviews: 298,
-    image: "https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400&h=300&fit=crop&crop=center",
-    category: "Cultural",
-    groupSize: "10-14 people",
-    highlights: ["Cherry blossoms", "Traditional temples", "Bullet trains", "Tea ceremonies"],
-  },
-  {
-    id: 5,
-    title: "Patagonia Trekking",
-    destination: "Argentina & Chile",
-    duration: "15 days",
-    price: 3799,
-    rating: 4.7,
-    reviews: 142,
-    image: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=400&h=300&fit=crop&crop=center",
-    category: "Adventure",
-    groupSize: "8-12 people",
-    highlights: ["Torres del Paine", "Glacier hiking", "Wildlife spotting", "Mountain lodges"],
-  },
-  {
-    id: 6,
-    title: "Morocco Desert Adventure",
-    destination: "Morocco",
-    duration: "9 days",
-    price: 1899,
-    rating: 4.8,
-    reviews: 203,
-    image: "https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=400&h=300&fit=crop&crop=center",
-    category: "Adventure",
-    groupSize: "8-14 people",
-    highlights: ["Sahara Desert", "Camel trekking", "Berber villages", "Atlas Mountains"],
-  },
-]
-
 const categories = ["All", "Adventure", "Cultural", "Wildlife", "Luxury", "Budget"]
 const durations = ["All", "1-7 days", "8-14 days", "15+ days"]
 const priceRanges = ["All", "Under $1500", "$1500-$2500", "$2500-$3500", "Over $3500"]
 
+// Helper to parse price string like "$120" to number 120
+function parsePrice(price: string | number | undefined): number {
+  if (typeof price === "number") return price
+  if (typeof price === "string") {
+    const match = price.match(/[\d,.]+/)
+    if (match) {
+      return parseFloat(match[0].replace(/,/g, ""))
+    }
+  }
+  return 0
+}
+
+// Helper to get destination name(s) as string
+function getDestinationName(tour: any): string {
+  if (tour.destination) return tour.destination
+  if (Array.isArray(tour.destinations) && tour.destinations.length > 0) {
+    return tour.destinations.map((d: any) => d.name).join(", ")
+  }
+  return ""
+}
+
+// Helper to get highlights as array
+function getHighlights(tour: any): string[] {
+  if (Array.isArray(tour.highlights)) return tour.highlights
+  if (typeof tour.highlights === "string" && tour.highlights.trim() !== "") {
+    // Try to split by comma or new line
+    return tour.highlights.split(/,|\n/).map((h: string) => h.trim()).filter(Boolean)
+  }
+  return []
+}
+
+// Helper to get image
+function getMainImage(tour: any): string {
+  if (tour.mainImage) return tour.mainImage
+  if (tour.archiveImages) return tour.archiveImages
+  if (tour.image) return tour.image
+  // Try galleryImages
+  if (Array.isArray(tour.destinations) && tour.destinations.length > 0) {
+    const imgs = tour.destinations.flatMap((d: any) => d.galleryImages || [])
+    if (imgs.length > 0) return imgs[0]
+  }
+  return "/placeholder.svg"
+}
+
+// Helper to get group size
+function getGroupSize(tour: any): string {
+  return tour.groupSize || tour.groupsize || ""
+}
+
+// Helper to get rating
+function getRating(tour: any): number | null {
+  if (typeof tour.rating === "number") return tour.rating
+  if (typeof tour.rating === "string" && tour.rating.trim() !== "") {
+    const n = Number(tour.rating)
+    if (!isNaN(n)) return n
+  }
+  return null
+}
+
+// Helper to get category
+function getCategory(tour: any): string {
+  return tour.category || "General"
+}
+
 export default function ToursPage() {
+  const [tours, setTours] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [selectedDuration, setSelectedDuration] = useState("All")
   const [selectedPriceRange, setSelectedPriceRange] = useState("All")
   const [sortBy, setSortBy] = useState("popularity")
 
+  const router = useRouter()
+
+  useEffect(() => {
+    async function fetchTours() {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetch("http://localhost:3001/api/tours")
+        if (!res.ok) throw new Error("Failed to fetch tours")
+        const data = await res.json()
+        setTours(data)
+      } catch (err: any) {
+        setError(err.message || "Error fetching tours")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTours()
+  }, [])
+
+  // Filtering logic adapted to new data structure
   const filteredTours = tours.filter((tour) => {
+    const title = tour.title || ""
+    const destination = getDestinationName(tour)
+    const category = getCategory(tour)
+    const durationStr = tour.duration || ""
+    const priceNum = parsePrice(tour.price)
+    // Search
     const matchesSearch =
-      tour.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tour.destination.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === "All" || tour.category === selectedCategory
+      title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      destination.toLowerCase().includes(searchTerm.toLowerCase())
+    // Category
+    const matchesCategory = selectedCategory === "All" || category === selectedCategory
+    // Duration
+    let durationDays = 0
+    if (typeof durationStr === "string") {
+      const match = durationStr.match(/(\d+)/)
+      if (match) durationDays = parseInt(match[1])
+    }
     const matchesDuration =
       selectedDuration === "All" ||
-      (selectedDuration === "1-7 days" && Number.parseInt(tour.duration) <= 7) ||
-      (selectedDuration === "8-14 days" &&
-        Number.parseInt(tour.duration) >= 8 &&
-        Number.parseInt(tour.duration) <= 14) ||
-      (selectedDuration === "15+ days" && Number.parseInt(tour.duration) >= 15)
+      (selectedDuration === "1-7 days" && durationDays >= 1 && durationDays <= 7) ||
+      (selectedDuration === "8-14 days" && durationDays >= 8 && durationDays <= 14) ||
+      (selectedDuration === "15+ days" && durationDays >= 15)
+    // Price
     const matchesPrice =
       selectedPriceRange === "All" ||
-      (selectedPriceRange === "Under $1500" && tour.price < 1500) ||
-      (selectedPriceRange === "$1500-$2500" && tour.price >= 1500 && tour.price <= 2500) ||
-      (selectedPriceRange === "$2500-$3500" && tour.price >= 2500 && tour.price <= 3500) ||
-      (selectedPriceRange === "Over $3500" && tour.price > 3500)
+      (selectedPriceRange === "Under $1500" && priceNum < 1500) ||
+      (selectedPriceRange === "$1500-$2500" && priceNum >= 1500 && priceNum <= 2500) ||
+      (selectedPriceRange === "$2500-$3500" && priceNum >= 2500 && priceNum <= 3500) ||
+      (selectedPriceRange === "Over $3500" && priceNum > 3500)
 
     return matchesSearch && matchesCategory && matchesDuration && matchesPrice
   })
 
+  // Sorting logic adapted to new data structure
   const sortedTours = [...filteredTours].sort((a, b) => {
+    const priceA = parsePrice(a.price)
+    const priceB = parsePrice(b.price)
+    const ratingA = getRating(a) ?? 0
+    const ratingB = getRating(b) ?? 0
+    // For popularity, fallback to bookings or reviews if available
+    const popularityA = a.bookings ?? a.reviews ?? 0
+    const popularityB = b.bookings ?? b.reviews ?? 0
+    // Duration
+    const durationA = (() => {
+      const match = (a.duration || "").match(/(\d+)/)
+      return match ? parseInt(match[1]) : 0
+    })()
+    const durationB = (() => {
+      const match = (b.duration || "").match(/(\d+)/)
+      return match ? parseInt(match[1]) : 0
+    })()
     switch (sortBy) {
       case "price-low":
-        return a.price - b.price
+        return priceA - priceB
       case "price-high":
-        return b.price - a.price
+        return priceB - priceA
       case "rating":
-        return b.rating - a.rating
+        return ratingB - ratingA
       case "duration":
-        return Number.parseInt(a.duration) - Number.parseInt(b.duration)
+        return durationA - durationB
       default:
-        return b.reviews - a.reviews
+        return popularityB - popularityA
     }
   })
 
@@ -245,90 +283,128 @@ export default function ToursPage() {
         <div className="container mx-auto px-4">
           <div className="mb-8">
             <p className="text-bronze-600">
-              Showing {sortedTours.length} of {tours.length} tours
+              {loading
+                ? "Loading tours..."
+                : error
+                ? "Error loading tours"
+                : `Showing ${sortedTours.length} of ${tours.length} tours`}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {sortedTours.map((tour, index) => (
-              <motion.div
-                key={tour.id}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -10 }}
-                className="group"
-              >
-                <Card className="overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
-                  <div className="relative overflow-hidden">
-                    <img
-                      src={tour.image || "/placeholder.svg"}
-                      alt={tour.title}
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <Badge className="absolute top-4 left-4 bg-gold-500 text-white">{tour.category}</Badge>
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium">{tour.rating}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-bold text-bronze-900 mb-2">{tour.title}</h3>
-
-                    <div className="flex items-center gap-4 text-sm text-bronze-600 mb-4">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {tour.destination}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {tour.duration}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1 text-sm text-bronze-600 mb-4">
-                      <Users className="w-4 h-4" />
-                      {tour.groupSize}
-                    </div>
-
-                    <div className="mb-4">
-                      <h4 className="font-semibold text-bronze-900 mb-2">Highlights:</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {tour.highlights.slice(0, 3).map((highlight, i) => (
-                          <Badge key={i} variant="secondary" className="text-xs bg-bronze-100 text-bronze-700">
-                            {highlight}
-                          </Badge>
-                        ))}
-                        {tour.highlights.length > 3 && (
-                          <Badge variant="secondary" className="text-xs bg-bronze-100 text-bronze-700">
-                            +{tour.highlights.length - 3} more
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-2xl font-bold text-gold-600">${tour.price}</span>
-                        <span className="text-sm text-bronze-500 ml-1">per person</span>
-                      </div>
-                      <Button className="bg-gold-500 hover:bg-gold-600">View Details</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-
-          {sortedTours.length === 0 && (
+          {loading ? (
             <div className="text-center py-16">
-              <Filter className="w-16 h-16 text-bronze-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-bronze-900 mb-2">No tours found</h3>
-              <p className="text-bronze-600">Try adjusting your filters to see more results</p>
+              <p className="text-bronze-600">Loading tours...</p>
             </div>
+          ) : error ? (
+            <div className="text-center py-16">
+              <p className="text-bronze-600">{error}</p>
+            </div>
+          ) : (
+            <>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {sortedTours.map((tour, index) => {
+                  const highlights = getHighlights(tour)
+                  const mainImage = getMainImage(tour)
+                  const destination = getDestinationName(tour)
+                  const groupSize = getGroupSize(tour)
+                  const rating = getRating(tour)
+                  const price = parsePrice(tour.price)
+                  const category = getCategory(tour)
+                  return (
+                    <motion.div
+                      key={tour.id}
+                      initial={{ opacity: 0, y: 50 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      whileHover={{ y: -10 }}
+                      className="group"
+                    >
+                      <Card className="overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
+                        <div className="relative overflow-hidden">
+                          <img
+                            src={`http://localhost:3001/${mainImage}` || "/placeholder.svg"}
+                            alt={tour.title}
+                            className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                          <Badge className="absolute top-4 left-4 bg-gold-500 text-white">{category}</Badge>
+                          <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                              <span className="text-sm font-medium">{rating !== null ? rating : "N/A"}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <CardContent className="p-6">
+                          <h3 className="text-xl font-bold text-bronze-900 mb-2">{tour.title}</h3>
+
+                          <div className="flex items-center gap-4 text-sm text-bronze-600 mb-4">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-4 h-4" />
+                              {destination}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              {tour.duration}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1 text-sm text-bronze-600 mb-4">
+                            <Users className="w-4 h-4" />
+                            {groupSize}
+                          </div>
+
+                          <div className="mb-4">
+                            <h4 className="font-semibold text-bronze-900 mb-2">Highlights:</h4>
+                            <div className="flex flex-wrap gap-1">
+                              {highlights.slice(0, 3).map((highlight: string, i: number) => (
+                                <Badge key={i} variant="secondary" className="text-xs bg-bronze-100 text-bronze-700">
+                                  {highlight}
+                                </Badge>
+                              ))}
+                              {highlights.length > 3 && (
+                                <Badge variant="secondary" className="text-xs bg-bronze-100 text-bronze-700">
+                                  +{highlights.length - 3} more
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-2xl font-bold text-gold-600">
+                                {typeof tour.price === "string" && tour.price.trim().startsWith("$")
+                                  ? tour.price
+                                  : `$${price}`}
+                              </span>
+                              <span className="text-sm text-bronze-500 ml-1">per person</span>
+                            </div>
+                            <Button
+                              className="bg-gold-500 hover:bg-gold-600"
+                              onClick={() => {
+                                if (tour.slug) {
+                                  router.push(`/tours/${tour.slug}`)
+                                }
+                              }}
+                            >
+                              View Details
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  )
+                })}
+              </div>
+
+              {sortedTours.length === 0 && (
+                <div className="text-center py-16">
+                  <Filter className="w-16 h-16 text-bronze-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-bronze-900 mb-2">No tours found</h3>
+                  <p className="text-bronze-600">Try adjusting your filters to see more results</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
