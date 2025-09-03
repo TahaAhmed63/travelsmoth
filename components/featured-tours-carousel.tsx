@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, MapPin, Clock, Users, ChevronLeft, ChevronRight, Calendar, Hotel, Camera } from "lucide-react"
+import { Star, MapPin, Clock, Users, ChevronLeft, ChevronRight, Calendar, Camera } from "lucide-react"
 import Link from "next/link"
 import TourBookingPopup from "./tour-booking-popup"
 import { BaseUrl } from "@/BaseUrl"
@@ -21,33 +21,45 @@ const difficultyColors: Record<string, string> = {
 type APITour = {
   id: string
   title: string
-  duration: string
-  difficulty: string
-  groupsize?: string | null
-  groupSize?: string | null
-  price: string
-  rating?: number | null
-  bookings?: number | null
-  description?: string
-  departurelocation?: string | null
-  departureLocation?: string | null
-  departuretime?: string | null
-  departureTime?: string | null
-  returntime?: string | null
-  returnTime?: string | null
-  languages?: string
-  highlights?: string[]
-  included?: string[]
-  notincluded?: string[] | null
-  notIncluded?: string[] | null
-  tourplan?: string | null
-  tourPlan?: string | null
-  itinerary?: any[]
-  archiveImages?: string
-  mainImage?: string
-  destinationIds?: string[]
-  destinations?: { id: string; name: string; galleryImages: string[] }[]
   slug?: string
+  description?: string
+  duration?: string
+  difficulty?: string
+  group_size?: string | number | null
+  price?: number | string
+  currency?: string
+  rating?: number
+  bookings_count?: number
+  departure_location?: string
+  departure_time?: string
+  return_time?: string
+  languages?: string[] | string
+  highlights?: string[] | string
+  included?: string[]
+  not_included?: string[]
+  tour_plan?: string
+  main_image?: string
+  archive_images?: string[]
+  itinerary?: any[]
+  destination_ids?: string[]
+  destinations?: { id: string; name: string; gallery_images: string[] }[]
+  max_participants?: number
+  min_participants?: number
+  age_restriction?: string
+  fitness_level?: string
+  what_to_bring?: string[] | string
+  meeting_point?: string
+  status?: string
+  created_at?: string
+  updated_at?: string
+}
+
+type PreSelectedTour = {
+  id: string
+  name: string
+  price: string | number
+  duration?: string
+  image?: string
 }
 
 export default function FeaturedToursCarousel() {
@@ -68,7 +80,8 @@ export default function FeaturedToursCarousel() {
         return res.json()
       })
       .then((data) => {
-        setTours(Array.isArray(data) ? data : [])
+        // Defensive: ensure array
+        setTours(Array.isArray(data?.data?.tours) ? data.data.tours : [])
         setLoading(false)
       })
       .catch((err) => {
@@ -114,12 +127,12 @@ export default function FeaturedToursCarousel() {
     setselectedTour({
       id: tour.id,
       name: tour.title,
-      price: tour.price,
+      price: tour.price ?? "",
       duration: tour.duration,
-      image: tour.mainImage
-        ? tour.mainImage.startsWith("http")
-          ? tour.mainImage
-          : `${BaseUrl}${tour.mainImage}`
+      image: tour.main_image
+        ? tour.main_image.startsWith("http")
+          ? tour.main_image
+          : `${BaseUrl}${tour.main_image}`
         : "/placeholder.svg",
     })
     setIsPopupOpen(true)
@@ -152,20 +165,54 @@ export default function FeaturedToursCarousel() {
         <div className="grid lg:grid-cols-3 gap-6">
           <AnimatePresence mode="wait">
             {getVisibleTours().map((tour, index) => {
-              // Fallbacks and mapping for API data
-              const imageUrl = tour.mainImage
-                ? tour.mainImage.startsWith("http")
-                  ? tour.mainImage
-                  : `${BaseUrl}${tour.mainImage}`
+              // Defensive: parse and map fields from API
+              const imageUrl = tour.main_image
+                ? tour.main_image.startsWith("http")
+                  ? tour.main_image
+                  : `${BaseUrl}${tour.main_image}`
                 : "/placeholder.svg"
-              const groupSize = tour.groupSize || tour.groupsize || "N/A"
-              const highlights = tour.highlights || []
-              const included = tour.included || []
+              // group_size can be string or number, fallback to max_participants or min_participants
+              const groupSize =
+                tour.group_size ??
+                tour.max_participants ??
+                tour.min_participants ??
+                "N/A"
+              // highlights can be a stringified array or array
+              let highlights: string[] = []
+              if (Array.isArray(tour.highlights)) {
+                highlights = tour.highlights
+              } else if (typeof tour.highlights === "string") {
+                try {
+                  const parsed = JSON.parse(tour.highlights)
+                  if (Array.isArray(parsed)) highlights = parsed
+                  else if (typeof parsed === "string") highlights = [parsed]
+                } catch {
+                  highlights = [tour.highlights]
+                }
+              }
+              // included
+              const included = Array.isArray(tour.included) ? tour.included : []
+              // difficulty
               const difficulty = tour.difficulty || "Easy"
+              // rating
               const rating = typeof tour.rating === "number" ? tour.rating : 4.5
-              const reviews = typeof tour.bookings === "number" ? tour.bookings : 0
-              const price = typeof tour.price === "string" ? tour.price : "$0"
-              // No hotels in API, so skip hotels section
+              // reviews/bookings
+              const reviews =
+                typeof tour.bookings_count === "number"
+                  ? tour.bookings_count
+                  : 0
+              // price
+              let price = "$0"
+              if (typeof tour.price === "number") {
+                price = tour.currency ? `${tour.currency} ${tour.price}` : `$${tour.price}`
+              } else if (typeof tour.price === "string") {
+                price = tour.currency ? `${tour.currency} ${tour.price}` : tour.price
+              }
+              // destinations
+              const destinations =
+                Array.isArray(tour.destinations) && tour.destinations.length > 0
+                  ? tour.destinations.map((d) => d.name).join(", ")
+                  : "—"
               return (
                 <motion.div
                   key={`${tour.id}-${currentIndex}`}
@@ -232,9 +279,7 @@ export default function FeaturedToursCarousel() {
                         <div className="flex items-center gap-2 text-sm text-bronze-600 mb-3">
                           <MapPin className="w-4 h-4" />
                           <span>
-                            {(tour.destinations && tour.destinations.length > 0)
-                              ? tour.destinations.map((d) => d.name).join(", ")
-                              : "—"}
+                            {destinations}
                           </span>
                         </div>
                       </div>
@@ -250,8 +295,6 @@ export default function FeaturedToursCarousel() {
                           <span>{tour.duration}</span>
                         </div>
                       </div>
-
-                      {/* No hotels in API, so skip hotels section */}
 
                       {/* Reviews */}
                       <div className="flex items-center gap-2 mb-4">

@@ -11,22 +11,41 @@ import Link from "next/link"
 import TourBookingPopup from "@/components/tour-booking-popup"
 import { BaseUrl } from "@/BaseUrl"
 
+// API Umrah package type (based on provided API response)
 type UmrahPackage = {
   id: string
   name: string
-  duration: string
-  price: string
-  availableseats: string | null
-  totalDuration: number
-  durationmakkah: number
-  durationmadinah: number
-  packagetype: string
-  packageinclude: string[]
-  hotelids: string[]
-  Itinerary: any[]
   description: string
+  duration: number
+  price: number
+  currency: string
+  total_duration: number
+  duration_makkah: number
+  duration_madinah: number
+  package_type: string
+  package_include: string[]
+  hotel_ids: string[]
+  departure_time: string
+  return_time: string
+  itinerary: any[]
+  main_image?: string
+  gallery_images: string[]
+  included: string[]
+  not_included: string[]
+  accommodation: string
+  flights_included: boolean
+  transportation: string
+  meals: string
+  visa_assistance: boolean
+  group_size: string
+  available_seats: number
+  bookings_count: number
+  departure_date: string | null
+  return_date: string | null
+  status: string
+  created_at: string
+  updated_at: string
   hotels: any[]
-  image?: string
 }
 
 const categoryConfig: Record<
@@ -77,7 +96,7 @@ export default function UmrahPackagesSection() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch packages from API
+  // Fetch packages from API (integrate with new API response shape)
   useEffect(() => {
     setLoading(true)
     setError(null)
@@ -87,7 +106,12 @@ export default function UmrahPackagesSection() {
         return res.json()
       })
       .then((data) => {
-        setPackages(Array.isArray(data) ? data : [])
+        // API returns { success, data: { packages: [...], pagination: {...} } }
+        if (data && data.success && Array.isArray(data.data?.packages)) {
+          setPackages(data.data.packages)
+        } else {
+          setPackages([])
+        }
         setLoading(false)
       })
       .catch((err) => {
@@ -96,7 +120,7 @@ export default function UmrahPackagesSection() {
       })
   }, [])
 
-  // Group packages by packagetype
+  // Group packages by package_type (case-insensitive)
   const groupedPackages = useMemo(() => {
     const groups: Record<string, UmrahPackage[]> = {
       economy: [],
@@ -104,7 +128,7 @@ export default function UmrahPackagesSection() {
       executive: [],
     }
     for (const pkg of packages) {
-      const type = (pkg.packagetype || "").toLowerCase()
+      const type = (pkg.package_type || "").toLowerCase()
       if (groups[type]) {
         groups[type].push(pkg)
       }
@@ -149,24 +173,30 @@ export default function UmrahPackagesSection() {
 
   // Helper: get image (API may not provide image)
   const getPackageImage = (pkg: UmrahPackage) => {
-    // If API provides image, use it, else fallback
-    return pkg.mainimage || DEFAULT_IMAGE
+    // If API provides main_image, use it, else fallback
+    return pkg.main_image ? pkg.main_image : DEFAULT_IMAGE
   }
 
   // Helper: get duration string
   const getDurationString = (pkg: UmrahPackage) => {
-    if (pkg.duration && !isNaN(Number(pkg.duration))) {
+    if (typeof pkg.duration === "number" && !isNaN(pkg.duration)) {
       return `${pkg.duration} Nights`
     }
-    if (pkg.totalDuration) {
-      return `${pkg.totalDuration} Nights`
+    if (typeof pkg.total_duration === "number" && !isNaN(pkg.total_duration)) {
+      return `${pkg.total_duration} Nights`
     }
-    return pkg.duration || ""
+    return ""
   }
 
-  // Helper: get features (use packageinclude)
+  // Helper: get features (prefer included, fallback to package_include)
   const getFeatures = (pkg: UmrahPackage) => {
-    return Array.isArray(pkg.packageinclude) ? pkg.packageinclude : []
+    if (Array.isArray(pkg.included) && pkg.included.length > 0) {
+      return pkg.included
+    }
+    if (Array.isArray(pkg.package_include)) {
+      return pkg.package_include
+    }
+    return []
   }
 
   // Helper: get hotels (API may not provide, fallback to empty)
@@ -179,16 +209,30 @@ export default function UmrahPackagesSection() {
     return pkg.description || ""
   }
 
-  // Helper: get group size (API does not provide, so fallback)
+  // Helper: get group size (API provides group_size)
   const getGroupSize = (pkg: UmrahPackage) => {
-    // Not available in API, so return "-"
-    return "-"
+    return pkg.group_size || "-"
   }
 
   // Helper: get category label
   const getCategoryLabel = (pkg: UmrahPackage) => {
-    const type = (pkg.packagetype || "").toLowerCase()
+    const type = (pkg.package_type || "").toLowerCase()
     return categoryConfig[type]?.label || type
+  }
+
+  // Helper: get price with currency
+  const getPriceString = (pkg: UmrahPackage) => {
+    if (pkg.price && pkg.currency) {
+      // If USD, show $; else show currency code
+      if (pkg.currency.toUpperCase() === "USD") {
+        return `$${pkg.price}`
+      }
+      return `${pkg.price} ${pkg.currency}`
+    }
+    if (pkg.price) {
+      return `$${pkg.price}`
+    }
+    return "-"
   }
 
   return (
@@ -338,7 +382,7 @@ export default function UmrahPackagesSection() {
                     <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 text-white">
                       <div className="flex items-baseline gap-1 sm:gap-2">
                         <span className="text-xs sm:text-sm font-medium">from</span>
-                        <span className="text-2xl sm:text-4xl font-bold">${currentPackage.price}</span>
+                        <span className="text-2xl sm:text-4xl font-bold">{getPriceString(currentPackage)}</span>
                       </div>
                     </div>
 
@@ -419,7 +463,9 @@ export default function UmrahPackagesSection() {
                             </div>
                           ))
                         ) : (
-                          <div className="text-bronze-600 text-sm">Hotel details will be provided upon request.</div>
+                          <div className="text-bronze-600 text-sm">
+                            {currentPackage.accommodation || "Hotel details will be provided upon request."}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -517,7 +563,7 @@ export default function UmrahPackagesSection() {
               preSelectedTour={{
                 id: selectedPackage.id,
                 name: selectedPackage.name,
-                price: selectedPackage.price,
+                price: getPriceString(selectedPackage),
                 duration: getDurationString(selectedPackage),
                 image: getPackageImage(selectedPackage),
               }}
