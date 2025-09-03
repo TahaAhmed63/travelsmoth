@@ -99,8 +99,17 @@ export default function FeaturedHotels() {
         if (!res.ok) throw new Error("Failed to fetch hotels")
         return res.json()
       })
-      .then((data: ApiHotel[]) => {
-        setHotels(data)
+      .then((raw: any) => {
+        const arr = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw?.hotels)
+          ? raw.hotels
+          : Array.isArray(raw?.items)
+          ? raw.items
+          : []
+        setHotels(arr)
         setLoading(false)
       })
       .catch((err) => {
