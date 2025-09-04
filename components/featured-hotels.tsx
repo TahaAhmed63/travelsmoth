@@ -263,7 +263,7 @@ export default function FeaturedHotels() {
                     </div>
 
                     <div className="flex gap-3">
-                      <Link href={`/hotels/${hotel.id}`} className="flex-1">
+                      <Link href={`/hotels/${(hotel as any).slug || hotel.id}`} className="flex-1">
                         <Button
                           variant="outline"
                           className="w-full border-gold-500 text-gold-600 hover:bg-gold-500 hover:text-white transition-all duration-300"
