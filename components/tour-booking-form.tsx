@@ -44,80 +44,17 @@ const serviceTypes = [
   },
 ]
 
-const destinations = [
-  {
-    id: "bali",
-    name: "Bali, Indonesia",
-    price: 1299,
-    duration: "7 days",
-    image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?w=300&h=200&fit=crop",
-    type: "tours",
-  },
-  {
-    id: "europe",
-    name: "European Grand Tour",
-    price: 2899,
-    duration: "14 days",
-    image: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=300&h=200&fit=crop",
-    type: "tours",
-  },
-  {
-    id: "maldives-resort",
-    name: "Maldives Luxury Resort",
-    price: 899,
-    duration: "per night",
-    image: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=300&h=200&fit=crop",
-    type: "hotels",
-  },
-  {
-    id: "dubai-hotel",
-    name: "Dubai Premium Hotel",
-    price: 450,
-    duration: "per night",
-    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&h=200&fit=crop",
-    type: "hotels",
-  },
-  {
-    id: "honeymoon-package",
-    name: "Romantic Honeymoon Package",
-    price: 3999,
-    duration: "10 days",
-    image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=300&h=200&fit=crop",
-    type: "packages",
-  },
-  {
-    id: "family-package",
-    name: "Family Adventure Package",
-    price: 4599,
-    duration: "12 days",
-    image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=300&h=200&fit=crop",
-    type: "packages",
-  },
-  {
-    id: "umrah-economy",
-    name: "Economy Umrah Package",
-    price: 1899,
-    duration: "14 days",
-    image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=300&h=200&fit=crop",
-    type: "umrah",
-  },
-  {
-    id: "umrah-premium",
-    name: "Premium Umrah Package",
-    price: 2899,
-    duration: "14 days",
-    image: "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=300&h=200&fit=crop",
-    type: "umrah",
-  },
-  {
-    id: "umrah-executive",
-    name: "Executive Umrah Package",
-    price: 4299,
-    duration: "14 days",
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop",
-    type: "umrah",
-  },
-]
+type ItemType = "tours" | "hotels" | "umrah"
+
+type Item = {
+  id: string
+  slug?: string
+  name: string
+  price: number
+  duration: string
+  image: string
+  type: ItemType
+}
 
 export default function TourBookingForm() {
   const [currentStep, setCurrentStep] = useState(1)
