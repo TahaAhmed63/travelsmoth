@@ -331,11 +331,7 @@ export default function ToursPage() {
                       <Card className="overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
                         <div className="relative overflow-hidden">
                           {(() => {
-                            const imageUrl = mainImage
-                              ? (typeof mainImage === "string" && mainImage.startsWith("http")
-                                  ? mainImage
-                                  : `${BaseUrl}${mainImage.startsWith('/') ? '' : '/'}${mainImage}`)
-                              : "/placeholder.svg"
+                            const imageUrl = mainImage ? (typeof mainImage === "string" ? mainImage : "/placeholder.svg") : "/placeholder.svg"
                             return (
                               <img
                                 src={imageUrl}
