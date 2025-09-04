@@ -166,8 +166,8 @@ export default function TourBookingForm() {
 
   const handleSubmit = async () => {
     try {
-      const selected = destinations.find((d) => d.id === formData.destination)
-      const itemType = formData.serviceType === "tours" ? "tour" : formData.serviceType === "hotels" ? "hotel" : formData.serviceType === "umrah" ? "umrah" : "package"
+      const selected = items.find((d) => d.id === formData.destination || d.slug === formData.destination)
+      const itemType = formData.serviceType === "tours" ? "tour" : formData.serviceType === "hotels" ? "hotel" : "umrah"
       const payload: any = {
         customer_name: `${formData.firstName} ${formData.lastName}`.trim(),
         customer_email: formData.email,
