@@ -90,8 +90,7 @@ function getCategoryDisplay(category: string) {
 function getImageUrl(mainImage: string, mainimage: string) {
   const img = mainImage || mainimage
   if (!img) return "/placeholder.svg"
-  if (img.startsWith("http")) return img
-  return img.startsWith("/") ? img : `${BaseUrl}/${img}`
+  return img
 }
 
 export default function HotelsPage() {
@@ -455,7 +454,7 @@ export default function HotelsPage() {
                           </div>
 
                           <div className="flex gap-3">
-                            <Link href={`/hotels/${hotel.id}`} className="flex-1">
+                            <Link href={`/hotels/${hotel.slug || hotel.id}`} className="flex-1">
                               <Button
                                 variant="outline"
                                 className="w-full border-gold-500 text-gold-600 hover:bg-gold-500 hover:text-white transition-all duration-300"
