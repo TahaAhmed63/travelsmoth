@@ -68,7 +68,7 @@ export default function HotelDetailPage() {
   useEffect(() => {
     if (!slug) return
     setLoading(true)
-    fetch(`http://localhost:3001/api/hotels/${slug}`)
+    fetch(`${BaseUrl}/api/hotels/${slug}`)
       .then(async (res) => {
         if (!res.ok) throw new Error("Failed to fetch hotel")
         const data = await res.json()
