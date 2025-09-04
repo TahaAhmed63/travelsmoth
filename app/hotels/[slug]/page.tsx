@@ -19,16 +19,13 @@ import {
   CheckCircle,
   Heart,
   Share2,
-  ArrowLeft,
   ChevronLeft,
   ChevronRight,
   Calendar,
   Users,
   Phone,
   Mail,
-  Clock,
 } from "lucide-react"
-import Link from "next/link"
 import TourBookingForm from "@/components/tour-booking-popup"
 import { BaseUrl } from "@/BaseUrl"
 
@@ -39,6 +36,10 @@ const amenityIcons: Record<string, any> = {
   "Gym": Dumbbell,
   "Business Center": Car,
   "Air Conditioning": CheckCircle,
+  "Laundry": CheckCircle,
+  "Airport Shuttle": Car,
+  "Restaurant": Utensils,
+  "Spa": Waves,
 }
 
 function formatCurrency(amount: number, currency: string) {
@@ -53,6 +54,41 @@ function formatCurrency(amount: number, currency: string) {
   }
 }
 
+function normalizeHotelData(apiData: any) {
+  // Accepts the API response and returns a normalized hotel object
+  if (!apiData) return null
+  // If wrapped in { success, data }, unwrap
+  const hotel = apiData.data ? apiData.data : apiData
+
+  return {
+    id: hotel.id,
+    name: hotel.name,
+    location: hotel.location,
+    destination_id: hotel.destination_id,
+    rating: hotel.rating,
+    category: hotel.category,
+    rooms: hotel.rooms,
+    price: hotel.price ?? hotel.min_price,
+    min_price: hotel.min_price ?? hotel.price,
+    max_price: hotel.max_price ?? hotel.price,
+    currency: hotel.currency,
+    amenities: hotel.amenities,
+    description: hotel.description,
+    main_image: hotel.main_image ?? hotel.mainimage ?? hotel.mainImage,
+    gallery_images: hotel.gallery_images ?? hotel.galleryimages ?? hotel.galleryImages ?? [],
+    address: hotel.address,
+    contact_phone: hotel.contact_phone ?? hotel.contactphone,
+    contact_email: hotel.contact_email ?? hotel.contactemail,
+    website: hotel.website,
+    check_in_time: hotel.check_in_time ?? hotel.checkintime,
+    check_out_time: hotel.check_out_time ?? hotel.checkouttime,
+    cancellation_policy: hotel.cancellation_policy ?? hotel.cancellationpolicy,
+    additional_policies: hotel.additional_policies ?? hotel.additionalpolicies,
+    additional_amenities: hotel.additional_amenities ?? hotel.additionalamenities,
+    slug: hotel.slug,
+  }
+}
+
 export default function HotelDetailPage() {
   const params = useParams()
   const slug = params?.slug as string
@@ -63,9 +99,6 @@ export default function HotelDetailPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isBookingOpen, setIsBookingOpen] = useState(false)
 
-  // For booking, we use minprice as the "selected room"
-  const [selectedRoom, setSelectedRoom] = useState<any>(null)
-
   useEffect(() => {
     if (!slug) return
     setLoading(true)
@@ -73,9 +106,8 @@ export default function HotelDetailPage() {
       .then(async (res) => {
         if (!res.ok) throw new Error("Failed to fetch hotel")
         const data = await res.json()
-        // If API returns an array, take the first
-        setHotel(Array.isArray(data) ? data[0] : data)
-        setSelectedRoom(Array.isArray(data) ? data[0] : data)
+        const normalized = normalizeHotelData(data)
+        setHotel(normalized)
         setCurrentImageIndex(0)
         setError(null)
       })
@@ -83,15 +115,10 @@ export default function HotelDetailPage() {
       .finally(() => setLoading(false))
   }, [slug])
 
-  const galleryImages = hotel?.galleryimages?.length
-    ? hotel.galleryimages
-    : hotel?.galleryImages?.length
-      ? hotel.galleryImages
-      : []
-
+  // Compose images array
   const allImages = [
-    hotel?.mainimage || hotel?.mainImage || "/placeholder.svg",
-    ...galleryImages,
+    hotel?.main_image || "/placeholder.svg",
+    ...(Array.isArray(hotel?.gallery_images) ? hotel.gallery_images : []),
   ].filter(Boolean).map((img: string) => (typeof img === 'string' ? img : "/placeholder.svg"))
 
   const nextImage = () => {
@@ -183,7 +210,6 @@ export default function HotelDetailPage() {
                 <div className="flex items-center gap-1 text-white">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   <span className="font-medium">{hotel.rating}</span>
-                  {/* No reviews count in API, so skip */}
                 </div>
               </div>
 
@@ -197,11 +223,11 @@ export default function HotelDetailPage() {
               <div className="flex items-center gap-4">
                 <div className="text-white">
                   <span className="text-2xl md:text-3xl font-bold">
-                    {formatCurrency(hotel.minprice, hotel.currency)}
+                    {formatCurrency(hotel.min_price, hotel.currency)}
                   </span>
-                  {hotel.maxprice && hotel.maxprice > hotel.minprice && (
+                  {hotel.max_price && hotel.max_price > hotel.min_price && (
                     <span className="text-lg text-gray-300 ml-2">
-                      {formatCurrency(hotel.maxprice, hotel.currency)}
+                      {formatCurrency(hotel.max_price, hotel.currency)}
                     </span>
                   )}
                   <span className="text-gray-300 ml-2">per night</span>
@@ -256,9 +282,9 @@ export default function HotelDetailPage() {
                             )
                           })}
                         </div>
-                        {hotel.additionalamenities && (
+                        {hotel.additional_amenities && (
                           <div className="mt-2 text-bronze-700 text-sm whitespace-pre-line">
-                            {hotel.additionalamenities}
+                            {hotel.additional_amenities}
                           </div>
                         )}
                       </div>
@@ -272,16 +298,16 @@ export default function HotelDetailPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="grid md:grid-cols-2 gap-4">
-                        {hotel.cancellationpolicy && (
+                        {hotel.cancellation_policy && (
                           <div className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-gold-500 mt-1 flex-shrink-0" />
                             <span className="text-bronze-700 text-sm whitespace-pre-line">
-                              {hotel.cancellationpolicy}
+                              {hotel.cancellation_policy}
                             </span>
                           </div>
                         )}
-                        {hotel.additionalpolicies &&
-                          hotel.additionalpolicies
+                        {hotel.additional_policies &&
+                          hotel.additional_policies
                             .split("\n")
                             .filter((p: string) => p.trim())
                             .map((policy: string, index: number) => (
@@ -352,7 +378,6 @@ export default function HotelDetailPage() {
                           ))}
                         </div>
                         <span className="text-lg font-semibold text-bronze-900">{hotel.rating}</span>
-                        {/* No reviews count in API */}
                       </div>
                     </div>
                   </div>
@@ -371,7 +396,7 @@ export default function HotelDetailPage() {
                 <CardContent className="space-y-4">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-gold-600">
-                      {formatCurrency(hotel.minprice, hotel.currency)}
+                      {formatCurrency(hotel.min_price, hotel.currency)}
                     </div>
                     <div className="text-bronze-600">per night</div>
                     <div className="text-sm text-bronze-500 mt-1">{hotel.name}</div>
@@ -385,7 +410,7 @@ export default function HotelDetailPage() {
                   </Button>
 
                   <div className="text-center text-sm text-bronze-600">
-                    <p>✓ {hotel.cancellationpolicy?.replace(/\n/g, " ") || "Free cancellation up to 48 hours"}</p>
+                    <p>✓ {hotel.cancellation_policy?.replace(/\n/g, " ") || "Free cancellation up to 48 hours"}</p>
                     <p>✓ Best price guarantee</p>
                     <p>✓ Instant confirmation</p>
                   </div>
@@ -401,13 +426,13 @@ export default function HotelDetailPage() {
                   <div className="flex items-center gap-3">
                     <Calendar className="w-5 h-5 text-gold-600" />
                     <span className="text-bronze-700">
-                      Check-in: {hotel.checkintime || "15:00"}
+                      Check-in: {hotel.check_in_time ? hotel.check_in_time.slice(0,5) : "15:00"}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Calendar className="w-5 h-5 text-gold-600" />
                     <span className="text-bronze-700">
-                      Check-out: {hotel.checkouttime || "11:00"}
+                      Check-out: {hotel.check_out_time ? hotel.check_out_time.slice(0,5) : "11:00"}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
@@ -450,16 +475,16 @@ export default function HotelDetailPage() {
                     </a>
                   </Button>
                   <div className="text-center text-sm text-bronze-600">
-                    {hotel.contactphone && (
+                    {hotel.contact_phone && (
                       <div className="flex items-center justify-center gap-2 mb-1">
                         <Phone className="w-4 h-4" />
-                        <span>{hotel.contactphone}</span>
+                        <span>{hotel.contact_phone}</span>
                       </div>
                     )}
-                    {hotel.contactemail && (
+                    {hotel.contact_email && (
                       <div className="flex items-center justify-center gap-2">
                         <Mail className="w-4 h-4" />
-                        <span>{hotel.contactemail}</span>
+                        <span>{hotel.contact_email}</span>
                       </div>
                     )}
                   </div>
@@ -482,7 +507,7 @@ export default function HotelDetailPage() {
             preSelectedTour={{
               id: hotel.id || slug,
               name: hotel.name,
-              price: hotel.minprice,
+              price: hotel.min_price,
               duration: "per night",
               image: allImages[0],
             }}
