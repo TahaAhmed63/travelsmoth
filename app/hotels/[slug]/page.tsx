@@ -92,7 +92,7 @@ export default function HotelDetailPage() {
   const allImages = [
     hotel?.mainimage || hotel?.mainImage || "/placeholder.svg",
     ...galleryImages,
-  ].filter(Boolean).map((img: string) => (img.startsWith('http') ? img : img.startsWith('/') ? img : `${BaseUrl}/${img}`))
+  ].filter(Boolean).map((img: string) => (typeof img === 'string' ? img : "/placeholder.svg"))
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % (allImages.length || 1))
