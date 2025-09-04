@@ -315,6 +315,7 @@ export default function FeaturedHotels() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <TourBookingPopup
             preSelectedTour={selectedHotel}
+            itemType="hotel"
             onClose={() => {
               setIsPopupOpen(false)
               setSelectedHotel(null)
