@@ -505,6 +505,7 @@ export default function HotelsPage() {
                 duration: "per night",
                 image: getImageUrl(selectedHotel.mainImage, selectedHotel.mainimage),
               }}
+              itemType="hotel"
               onClose={() => setIsBookingOpen(false)}
             />
           )}
