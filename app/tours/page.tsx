@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Star, MapPin, Clock, Users, Search, Filter } from "lucide-react"
+import { BaseUrl } from "@/BaseUrl"
 
 const categories = ["All", "Adventure", "Cultural", "Wildlife", "Luxury", "Budget"]
 const durations = ["All", "1-7 days", "8-14 days", "15+ days"]
@@ -48,7 +49,8 @@ function getHighlights(tour: any): string[] {
 // Helper to get image
 function getMainImage(tour: any): string {
   if (tour.mainImage) return tour.mainImage
-  if (tour.archiveImages) return tour.archiveImages
+  if (Array.isArray(tour.archiveImages) && tour.archiveImages.length > 0) return tour.archiveImages[0]
+  if (typeof tour.archiveImages === "string" && tour.archiveImages.trim() !== "") return tour.archiveImages
   if (tour.image) return tour.image
   // Try galleryImages
   if (Array.isArray(tour.destinations) && tour.destinations.length > 0) {
@@ -96,10 +98,17 @@ export default function ToursPage() {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch("http://localhost:3001/api/tours")
+        const res = await fetch(`${BaseUrl}/api/tours`)
         if (!res.ok) throw new Error("Failed to fetch tours")
-        const data = await res.json()
-        setTours(data)
+        const raw = await res.json()
+        const arr = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw?.tours)
+          ? raw.tours
+          : []
+        setTours(arr)
       } catch (err: any) {
         setError(err.message || "Error fetching tours")
       } finally {
@@ -312,7 +321,7 @@ export default function ToursPage() {
                   const category = getCategory(tour)
                   return (
                     <motion.div
-                      key={tour.id}
+                      key={tour.slug || tour.id || `${tour.title}-${index}`}
                       initial={{ opacity: 0, y: 50 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -321,11 +330,20 @@ export default function ToursPage() {
                     >
                       <Card className="overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
                         <div className="relative overflow-hidden">
-                          <img
-                            src={`http://localhost:3001/${mainImage}` || "/placeholder.svg"}
-                            alt={tour.title}
-                            className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
+                          {(() => {
+                            const imageUrl = mainImage
+                              ? (typeof mainImage === "string" && mainImage.startsWith("http")
+                                  ? mainImage
+                                  : `${BaseUrl}${mainImage.startsWith('/') ? '' : '/'}${mainImage}`)
+                              : "/placeholder.svg"
+                            return (
+                              <img
+                                src={imageUrl}
+                                alt={tour.title}
+                                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                              />
+                            )
+                          })()}
                           <Badge className="absolute top-4 left-4 bg-gold-500 text-white">{category}</Badge>
                           <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
                             <div className="flex items-center gap-1">
