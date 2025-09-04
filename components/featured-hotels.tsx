@@ -18,32 +18,36 @@ interface PreSelectedTour {
   image: string
 }
 
+// This interface matches the API response structure exactly
 interface ApiHotel {
   id: string
   name: string
   location: string
-  description: string
+  destination_id?: string | null
+  rating: number
   category: string
   rooms: number
-  rating: number
-  address: string
-  contactphone: string
-  contactemail: string
-  website: string
-  minprice: number
-  maxprice: number
+  price: number
   currency: string
   amenities: string[]
-  additionalamenities: string
-  checkintime: string
-  checkouttime: string
-  cancellationpolicy: string
-  additionalpolicies: string
-  mainimage: string
-  galleryimages: string[]
+  description: string
+  main_image: string
+  gallery_images: string[]
+  address: string
+  contact_phone: string
+  contact_email: string
+  website: string
+  min_price: number
+  max_price: number
+  check_in_time: string
+  check_out_time: string
+  cancellation_policy: string
+  additional_policies: string
+  bookings_count: number
+  latitude?: number | null
+  longitude?: number | null
   created_at: string
-  galleryImages?: string[]
-  mainImage?: string
+  updated_at: string
 }
 
 const amenityIcons: Record<string, any> = {
@@ -63,16 +67,13 @@ const amenityIcons: Record<string, any> = {
 }
 
 function getHotelImage(hotel: ApiHotel) {
-  // Prefer mainimage, fallback to mainImage, fallback to first gallery image, fallback to placeholder
-  if (hotel.mainimage && hotel.mainimage.trim() !== "") return hotel.mainimage
-  if (hotel.mainImage && hotel.mainImage.trim() !== "") return hotel.mainImage
-  if (hotel.galleryimages && hotel.galleryimages.length > 0) return hotel.galleryimages[0]
-  if (hotel.galleryImages && hotel.galleryImages.length > 0) return hotel.galleryImages[0]
+  // Use main_image, fallback to first gallery_images, fallback to placeholder
+  if (hotel.main_image && hotel.main_image.trim() !== "") return hotel.main_image
+  if (hotel.gallery_images && hotel.gallery_images.length > 0 && hotel.gallery_images[0].trim() !== "") return hotel.gallery_images[0]
   return "/placeholder.svg"
 }
 
 function getCategoryLabel(category: string) {
-  // Map API category to display label
   if (!category) return "Hotel"
   const map: Record<string, string> = {
     resort: "Resort",
@@ -100,15 +101,11 @@ export default function FeaturedHotels() {
         return res.json()
       })
       .then((raw: any) => {
-        const arr = Array.isArray(raw)
-          ? raw
-          : Array.isArray(raw?.data)
-          ? raw.data
-          : Array.isArray(raw?.hotels)
-          ? raw.hotels
-          : Array.isArray(raw?.items)
-          ? raw.items
-          : []
+        // Expecting: { success: true, data: { hotels: [...] } }
+        let arr: ApiHotel[] = []
+        if (raw && raw.data && Array.isArray(raw.data.hotels)) {
+          arr = raw.data.hotels
+        }
         setHotels(arr)
         setLoading(false)
       })
@@ -122,7 +119,7 @@ export default function FeaturedHotels() {
     setSelectedHotel({
       id: hotel.id,
       name: hotel.name,
-      price: hotel.minprice,
+      price: hotel.min_price,
       duration: "3 nights",
       image: getHotelImage(hotel),
     })
@@ -166,7 +163,11 @@ export default function FeaturedHotels() {
                 <Card className="overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-white">
                   <div className="relative overflow-hidden">
                     <img
-                      src={`${BaseUrl}${getHotelImage(hotel)}`}
+                      src={
+                        getHotelImage(hotel).startsWith("/")
+                          ? getHotelImage(hotel)
+                          : `${BaseUrl}${getHotelImage(hotel)}`
+                      }
                       alt={hotel.name}
                       className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700"
                     />
@@ -194,26 +195,26 @@ export default function FeaturedHotels() {
                             {hotel.currency?.toLowerCase() === "usd" || hotel.currency?.toLowerCase() === "dollar"
                               ? "$"
                               : hotel.currency?.toLowerCase() === "jpy"
-                              ? "¥"
-                              : hotel.currency?.toLowerCase() === "eur"
-                              ? "€"
-                              : hotel.currency?.toLowerCase() === "gbp"
-                              ? "£"
-                              : ""}
-                            {hotel.minprice}
+                                ? "¥"
+                                : hotel.currency?.toLowerCase() === "eur"
+                                  ? "€"
+                                  : hotel.currency?.toLowerCase() === "gbp"
+                                    ? "£"
+                                    : ""}
+                            {hotel.min_price}
                           </span>
-                          {hotel.maxprice && hotel.maxprice > hotel.minprice && (
+                          {hotel.max_price && hotel.max_price > hotel.min_price && (
                             <span className="text-sm line-through text-gray-300">
                               {hotel.currency?.toLowerCase() === "usd" || hotel.currency?.toLowerCase() === "dollar"
                                 ? "$"
                                 : hotel.currency?.toLowerCase() === "jpy"
-                                ? "¥"
-                                : hotel.currency?.toLowerCase() === "eur"
-                                ? "€"
-                                : hotel.currency?.toLowerCase() === "gbp"
-                                ? "£"
-                                : ""}
-                              {hotel.maxprice}
+                                  ? "¥"
+                                  : hotel.currency?.toLowerCase() === "eur"
+                                    ? "€"
+                                    : hotel.currency?.toLowerCase() === "gbp"
+                                      ? "£"
+                                      : ""}
+                              {hotel.max_price}
                             </span>
                           )}
                         </div>
@@ -243,14 +244,11 @@ export default function FeaturedHotels() {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-4 h-4 ${
-                              i < Math.round(hotel.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                            }`}
+                            className={`w-4 h-4 ${i < Math.round(hotel.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                              }`}
                           />
                         ))}
                       </div>
-                      {/* No reviews in API, so omit or fake */}
-                      {/* <span className="text-sm text-bronze-600">({hotel.reviews} reviews)</span> */}
                     </div>
 
                     <div className="mb-6">
@@ -277,7 +275,7 @@ export default function FeaturedHotels() {
                           View Details
                         </Button>
                       </Link>
-                      <Button 
+                      <Button
                         onClick={() => handleBookNow(hotel)}
                         className="bg-gold-500 hover:bg-gold-600 text-white px-6 transition-all duration-300"
                       >
