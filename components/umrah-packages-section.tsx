@@ -556,12 +556,12 @@ export default function UmrahPackagesSection() {
               preSelectedTour={{
                 id: selectedPackage.id,
                 name: selectedPackage.name,
-                price: getPriceString(selectedPackage),
+                price: getPriceString(selectedPackage) as unknown as number,
                 duration: getDurationString(selectedPackage),
                 image: getPackageImage(selectedPackage),
               }}
+              itemType="umrah"
               onClose={() => setIsBookingOpen(false)}
-              isUmrah={true}
             />
           )}
         </DialogContent>
