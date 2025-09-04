@@ -8,14 +8,14 @@ import Footer from "@/components/footer"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "travelsmoth - Premium Travel Agency | Discover Amazing Destinations",
+  title: "travelsmooth - Premium Travel Agency | Discover Amazing Destinations",
   description:
     "Explore the world with travelsmoth Travel Agency. We offer expertly crafted tours, unique destinations, and unforgettable travel experiences. Book your next adventure today!",
   keywords:
     "travel agency, tours, destinations, vacation packages, adventure travel, cultural tours, sustainable tourism",
-  authors: [{ name: "travelsmoth Travel Agency" }],
+  authors: [{ name: "travelsmooth Travel Agency" }],
   openGraph: {
-    title: "travelsmoth - Premium Travel Agency",
+    title: "travelsmooth - Premium Travel Agency",
     description:
       "Discover amazing destinations and create unforgettable memories with our expertly crafted travel experiences.",
     url: "https://travelsmooth.com.pk/",
