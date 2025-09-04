@@ -469,8 +469,8 @@ export default function PackagesPage() {
                 duration: selectedPackage.duration,
                 image: selectedPackage.image,
               }}
+              itemType="umrah"
               onClose={() => setIsBookingOpen(false)}
-              isUmrah={true}
             />
           )}
         </DialogContent>
