@@ -486,8 +486,8 @@ export default function HotelDetailPage() {
               duration: "per night",
               image: allImages[0],
             }}
+            itemType="hotel"
             onClose={() => setIsBookingOpen(false)}
-            isHotel={true}
           />
         </DialogContent>
       </Dialog>
