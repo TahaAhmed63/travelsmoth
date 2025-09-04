@@ -163,13 +163,7 @@ export default function FeaturedHotels() {
                 <Card className="overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-white">
                   <div className="relative overflow-hidden">
                     <img
-                      src={
-                        getHotelImage(hotel).startsWith("http")
-                          ? getHotelImage(hotel)
-                          : getHotelImage(hotel).startsWith("/")
-                          ? getHotelImage(hotel)
-                          : `${BaseUrl}/${getHotelImage(hotel)}`
-                      }
+                      src={getHotelImage(hotel)}
                       alt={hotel.name}
                       className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700"
                     />
