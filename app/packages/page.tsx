@@ -416,7 +416,7 @@ export default function PackagesPage() {
                           </Button>
 
                           <div className="flex gap-2">
-                            <Link href={`/packages/${pkg.id}`} className="flex-1">
+                            <Link href={`/packages/${pkg.slug || pkg.id}`} className="flex-1">
                               <Button
                                 variant="outline"
                                 className="w-full border-bronze-300 text-bronze-600 hover:bg-bronze-50 transition-all duration-300"
