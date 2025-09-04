@@ -26,8 +26,8 @@ const navigation = [
 type MenuCategory = { name: string; items: { name: string; href: string }[] }
 const defaultTourCategories: MenuCategory[] = [
   { name: "Popular", items: [] },
-  { name: "Themes", items: [] },
-  { name: "Experiences", items: [] },
+  // { name: "Themes", items: [] },
+  // { name: "Experiences", items: [] },
 ]
 
 const defaultFeaturedDestinations: { name: string; href: string; image: string }[] = []
