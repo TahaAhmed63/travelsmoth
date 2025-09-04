@@ -11,22 +11,41 @@ import Link from "next/link"
 import TourBookingPopup from "@/components/tour-booking-popup"
 import { BaseUrl } from "@/BaseUrl"
 
+// API Umrah package type (based on provided API response)
 type UmrahPackage = {
   id: string
   name: string
-  duration: string
-  price: string
-  availableseats: string | null
-  totalDuration: number
-  durationmakkah: number
-  durationmadinah: number
-  packagetype: string
-  packageinclude: string[]
-  hotelids: string[]
-  Itinerary: any[]
   description: string
+  duration: number
+  price: number
+  currency: string
+  total_duration: number
+  duration_makkah: number
+  duration_madinah: number
+  package_type: string
+  package_include: string[]
+  hotel_ids: string[]
+  departure_time: string
+  return_time: string
+  itinerary: any[]
+  main_image?: string
+  gallery_images: string[]
+  included: string[]
+  not_included: string[]
+  accommodation: string
+  flights_included: boolean
+  transportation: string
+  meals: string
+  visa_assistance: boolean
+  group_size: string
+  available_seats: number
+  bookings_count: number
+  departure_date: string | null
+  return_date: string | null
+  status: string
+  created_at: string
+  updated_at: string
   hotels: any[]
-  image?: string
 }
 
 const categoryConfig: Record<
@@ -77,7 +96,7 @@ export default function UmrahPackagesSection() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch packages from API
+  // Fetch packages from API (integrate with new API response shape)
   useEffect(() => {
     setLoading(true)
     setError(null)
@@ -87,7 +106,12 @@ export default function UmrahPackagesSection() {
         return res.json()
       })
       .then((data) => {
-        setPackages(Array.isArray(data) ? data : [])
+        // API returns { success, data: { packages: [...], pagination: {...} } }
+        if (data && data.success && Array.isArray(data.data?.packages)) {
+          setPackages(data.data.packages)
+        } else {
+          setPackages([])
+        }
         setLoading(false)
       })
       .catch((err) => {
@@ -96,7 +120,7 @@ export default function UmrahPackagesSection() {
       })
   }, [])
 
-  // Group packages by packagetype
+  // Group packages by package_type (case-insensitive)
   const groupedPackages = useMemo(() => {
     const groups: Record<string, UmrahPackage[]> = {
       economy: [],
@@ -104,7 +128,7 @@ export default function UmrahPackagesSection() {
       executive: [],
     }
     for (const pkg of packages) {
-      const type = (pkg.packagetype || "").toLowerCase()
+      const type = (pkg.package_type || "").toLowerCase()
       if (groups[type]) {
         groups[type].push(pkg)
       }
@@ -149,24 +173,30 @@ export default function UmrahPackagesSection() {
 
   // Helper: get image (API may not provide image)
   const getPackageImage = (pkg: UmrahPackage) => {
-    // If API provides image, use it, else fallback
-    return pkg.mainimage || DEFAULT_IMAGE
+    // If API provides main_image, use it, else fallback
+    return pkg.main_image ? pkg.main_image : DEFAULT_IMAGE
   }
 
   // Helper: get duration string
   const getDurationString = (pkg: UmrahPackage) => {
-    if (pkg.duration && !isNaN(Number(pkg.duration))) {
+    if (typeof pkg.duration === "number" && !isNaN(pkg.duration)) {
       return `${pkg.duration} Nights`
     }
-    if (pkg.totalDuration) {
-      return `${pkg.totalDuration} Nights`
+    if (typeof pkg.total_duration === "number" && !isNaN(pkg.total_duration)) {
+      return `${pkg.total_duration} Nights`
     }
-    return pkg.duration || ""
+    return ""
   }
 
-  // Helper: get features (use packageinclude)
+  // Helper: get features (prefer included, fallback to package_include)
   const getFeatures = (pkg: UmrahPackage) => {
-    return Array.isArray(pkg.packageinclude) ? pkg.packageinclude : []
+    if (Array.isArray(pkg.included) && pkg.included.length > 0) {
+      return pkg.included
+    }
+    if (Array.isArray(pkg.package_include)) {
+      return pkg.package_include
+    }
+    return []
   }
 
   // Helper: get hotels (API may not provide, fallback to empty)
@@ -179,16 +209,30 @@ export default function UmrahPackagesSection() {
     return pkg.description || ""
   }
 
-  // Helper: get group size (API does not provide, so fallback)
+  // Helper: get group size (API provides group_size)
   const getGroupSize = (pkg: UmrahPackage) => {
-    // Not available in API, so return "-"
-    return "-"
+    return pkg.group_size || "-"
   }
 
   // Helper: get category label
   const getCategoryLabel = (pkg: UmrahPackage) => {
-    const type = (pkg.packagetype || "").toLowerCase()
+    const type = (pkg.package_type || "").toLowerCase()
     return categoryConfig[type]?.label || type
+  }
+
+  // Helper: get price with currency
+  const getPriceString = (pkg: UmrahPackage) => {
+    if (pkg.price && pkg.currency) {
+      // If USD, show $; else show currency code
+      if (pkg.currency.toUpperCase() === "USD") {
+        return `$${pkg.price}`
+      }
+      return `${pkg.price} ${pkg.currency}`
+    }
+    if (pkg.price) {
+      return `$${pkg.price}`
+    }
+    return "-"
   }
 
   return (
@@ -214,15 +258,14 @@ export default function UmrahPackagesSection() {
             {/* Mobile: 2 rows, Desktop: 1 row */}
             <div className="block md:hidden w-full">
               <div className="flex gap-1 sm:gap-2 w-full mb-2">
-                {Object.entries(categoryConfig).slice(0,2).map(([key, config]) => (
+                {Object.entries(categoryConfig).slice(0, 2).map(([key, config]) => (
                   <button
                     key={key}
                     onClick={() => handleTabChange(key)}
-                    className={`flex-1 min-w-[6rem] md:min-w-[10rem] text-xs px-2 py-2 rounded-xl font-semibold transition-all duration-300 ${
-                      activeTab === key
+                    className={`flex-1 min-w-[6rem] md:min-w-[10rem] text-xs px-2 py-2 rounded-xl font-semibold transition-all duration-300 ${activeTab === key
                         ? `bg-gradient-to-r ${config.color} text-white shadow-lg transform scale-105`
                         : "text-bronze-600 hover:text-bronze-900 hover:bg-bronze-50"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-center gap-1">
                       <span className="capitalize">{config.label}</span>
@@ -230,9 +273,8 @@ export default function UmrahPackagesSection() {
                         {[...Array(config.stars)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-3 h-3 ${
-                              activeTab === key ? "fill-yellow-300 text-yellow-300" : "fill-gold-400 text-gold-400"
-                            }`}
+                            className={`w-3 h-3 ${activeTab === key ? "fill-yellow-300 text-yellow-300" : "fill-gold-400 text-gold-400"
+                              }`}
                           />
                         ))}
                       </div>
@@ -241,15 +283,14 @@ export default function UmrahPackagesSection() {
                 ))}
               </div>
               <div className="flex justify-center w-full">
-                {Object.entries(categoryConfig).slice(2,3).map(([key, config]) => (
+                {Object.entries(categoryConfig).slice(2, 3).map(([key, config]) => (
                   <button
                     key={key}
                     onClick={() => handleTabChange(key)}
-                    className={`min-w-[6rem] text-xs px-2 py-2 rounded-xl font-semibold transition-all duration-300 ${
-                      activeTab === key
+                    className={`min-w-[6rem] text-xs px-2 py-2 rounded-xl font-semibold transition-all duration-300 ${activeTab === key
                         ? `bg-gradient-to-r ${config.color} text-white shadow-lg transform scale-105`
                         : "text-bronze-600 hover:text-bronze-900 hover:bg-bronze-50"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-center gap-1">
                       <span className="capitalize">{config.label}</span>
@@ -257,9 +298,8 @@ export default function UmrahPackagesSection() {
                         {[...Array(config.stars)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-3 h-3 ${
-                              activeTab === key ? "fill-yellow-300 text-yellow-300" : "fill-gold-400 text-gold-400"
-                            }`}
+                            className={`w-3 h-3 ${activeTab === key ? "fill-yellow-300 text-yellow-300" : "fill-gold-400 text-gold-400"
+                              }`}
                           />
                         ))}
                       </div>
@@ -274,11 +314,10 @@ export default function UmrahPackagesSection() {
                 <button
                   key={key}
                   onClick={() => handleTabChange(key)}
-                  className={`px-6 py-3 rounded-[1.2rem] font-semibold text-lg transition-all duration-300 flex items-center ${
-                    activeTab === key
+                  className={`px-6 py-3 rounded-[1.2rem] font-semibold text-lg transition-all duration-300 flex items-center ${activeTab === key
                       ? `bg-gradient-to-r ${config.color} text-white shadow-lg`
                       : "bg-transparent text-bronze-700"
-                  }`}
+                    }`}
                   style={{ marginRight: key !== Object.keys(categoryConfig)[Object.keys(categoryConfig).length - 1] ? '0.5rem' : 0 }}
                 >
                   <span className="capitalize mr-2">{config.label}</span>
@@ -286,11 +325,10 @@ export default function UmrahPackagesSection() {
                     {[...Array(config.stars)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-5 h-5 ${
-                          activeTab === key
+                        className={`w-5 h-5 ${activeTab === key
                             ? "fill-yellow-300 text-yellow-300"
                             : "fill-gold-400 text-gold-400"
-                        }`}
+                          }`}
                       />
                     ))}
                   </span>
@@ -338,7 +376,7 @@ export default function UmrahPackagesSection() {
                     <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 text-white">
                       <div className="flex items-baseline gap-1 sm:gap-2">
                         <span className="text-xs sm:text-sm font-medium">from</span>
-                        <span className="text-2xl sm:text-4xl font-bold">${currentPackage.price}</span>
+                        <span className="text-2xl sm:text-4xl font-bold">{getPriceString(currentPackage)}</span>
                       </div>
                     </div>
 
@@ -419,7 +457,9 @@ export default function UmrahPackagesSection() {
                             </div>
                           ))
                         ) : (
-                          <div className="text-bronze-600 text-sm">Hotel details will be provided upon request.</div>
+                          <div className="text-bronze-600 text-sm">
+                            {currentPackage.accommodation || "Hotel details will be provided upon request."}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -461,11 +501,10 @@ export default function UmrahPackagesSection() {
                           <button
                             key={index}
                             onClick={() => setCurrentPackageIndex(index)}
-                            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
-                              index === currentPackageIndex
+                            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${index === currentPackageIndex
                                 ? `bg-gradient-to-r ${config.color}`
                                 : "bg-bronze-300 hover:bg-bronze-400"
-                            }`}
+                              }`}
                           />
                         ))}
                       </div>
@@ -517,7 +556,7 @@ export default function UmrahPackagesSection() {
               preSelectedTour={{
                 id: selectedPackage.id,
                 name: selectedPackage.name,
-                price: selectedPackage.price,
+                price: getPriceString(selectedPackage),
                 duration: getDurationString(selectedPackage),
                 image: getPackageImage(selectedPackage),
               }}
