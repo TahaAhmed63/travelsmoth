@@ -177,11 +177,11 @@ export default function MainBookingForm() {
 
   const calculateTotal = () => {
     if (!selectedDestination) return 0
-    const basePrice = selectedDestination.price
+    const basePrice = selectedDestination.price || 0
     if (formData.serviceType === "hotels") {
-      return basePrice * formData.rooms * 7 // Assuming 7 nights
+      return basePrice * Math.max(1, formData.rooms) * 7
     }
-    return basePrice * (formData.adults + formData.children * 0.7)
+    return basePrice * Math.max(1, (formData.adults + formData.children * 0.7))
   }
 
   const getCurrentStepIcon = () => {
