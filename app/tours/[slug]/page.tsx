@@ -97,9 +97,7 @@ export default function TourDetailPage() {
       <section className="relative h-[70vh] overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src={typeof tourData.mainImage === 'string' && tourData.mainImage.startsWith('http')
-              ? tourData.mainImage
-              : (tourData.mainImage ? `${BaseUrl}${tourData.mainImage.startsWith('/') ? '' : '/'}${tourData.mainImage}` : "/placeholder.svg")}
+            src={typeof tourData.mainImage === 'string' ? tourData.mainImage : "/placeholder.svg"}
             alt={tourData.title}
             className="w-full h-full object-cover"
           />
