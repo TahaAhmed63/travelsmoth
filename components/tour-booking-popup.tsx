@@ -63,9 +63,37 @@ export default function TourBookingPopup({ preSelectedTour, onClose }: TourBooki
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = () => {
-    alert("Booking request submitted! We'll contact you within 24 hours.")
-    onClose()
+  const handleSubmit = async () => {
+    try {
+      const payload: any = {
+        customer_name: `${formData.firstName} ${formData.lastName}`.trim(),
+        customer_email: formData.email,
+        customer_phone: formData.phone,
+        item_type: "tour",
+        item_id: preSelectedTour.id,
+        item_name: preSelectedTour.name,
+        start_date: formData.startDate || null,
+        end_date: formData.endDate || null,
+        total_price: calculateTotal(),
+        currency: "USD",
+        number_of_guests: formData.adults + formData.children,
+        adults: formData.adults,
+        children: formData.children,
+        accommodation_preference: formData.accommodation || null,
+        selected_package: preSelectedTour.id,
+      }
+      const { BaseUrl } = await import("@/BaseUrl")
+      const res = await fetch(`${BaseUrl}/api/bookings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) throw new Error("Failed to submit booking")
+      alert("Booking submitted! Our team will contact you shortly.")
+      onClose()
+    } catch (e: any) {
+      alert(e?.message || "Failed to submit booking")
+    }
   }
 
   const calculateTotal = () => {
