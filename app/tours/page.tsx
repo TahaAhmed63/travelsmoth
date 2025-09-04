@@ -48,9 +48,9 @@ function getHighlights(tour: any): string[] {
 
 // Helper to get image
 function getMainImage(tour: any): string {
-  if (tour.mainImage) return tour.mainImage
-  if (Array.isArray(tour.archiveImages) && tour.archiveImages.length > 0) return tour.archiveImages[0]
-  if (typeof tour.archiveImages === "string" && tour.archiveImages.trim() !== "") return tour.archiveImages
+  if (tour.mainImage) return tour.main_image
+  if (Array.isArray(tour.archive_images) && tour.archive_images.length > 0) return tour.archive_images[0]
+  if (typeof tour.archive_images === "string" && tour.archive_images.trim() !== "") return tour.archive_images
   if (tour.image) return tour.image
   // Try galleryImages
   if (Array.isArray(tour.destinations) && tour.destinations.length > 0) {
@@ -101,13 +101,15 @@ export default function ToursPage() {
         const res = await fetch(`${BaseUrl}/api/tours`)
         if (!res.ok) throw new Error("Failed to fetch tours")
         const raw = await res.json()
+        console.log(raw,"")
         const arr = Array.isArray(raw)
           ? raw
           : Array.isArray(raw?.data)
           ? raw.data
-          : Array.isArray(raw?.tours)
-          ? raw.tours
+          : Array.isArray(raw?.data?.tours)
+          ? raw?.data?.tours
           : []
+     
         setTours(arr)
       } catch (err: any) {
         setError(err.message || "Error fetching tours")

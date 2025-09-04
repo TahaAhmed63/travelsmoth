@@ -46,6 +46,20 @@ function ErrorMessage({ message }: { message: string }) {
   )
 }
 
+function parseJsonArrayString(str: string | any): string[] {
+  if (Array.isArray(str)) return str
+  if (typeof str === "string") {
+    try {
+      const arr = JSON.parse(str)
+      if (Array.isArray(arr)) return arr
+    } catch {
+      // fallback: treat as comma separated
+      return str.split(",").map((s) => s.trim()).filter(Boolean)
+    }
+  }
+  return []
+}
+
 export default function TourDetailPage() {
   const params = useParams()
   const router = useRouter()
@@ -55,6 +69,30 @@ export default function TourDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isBookingOpen, setIsBookingOpen] = useState(false)
+
+  // Helper: get main image and gallery images
+  function getMainImage(data: any) {
+    return (
+      data?.main_image ||
+      data?.mainImage ||
+      (Array.isArray(data?.archive_images) && data.archive_images[0]) ||
+      (Array.isArray(data?.gallery) && data.gallery[0]) ||
+      "/placeholder.svg"
+    )
+  }
+  function getGalleryImages(data: any) {
+    // Try all possible gallery fields
+    if (!data) return []
+    if (Array.isArray(data.gallery) && data.gallery.length) return data.gallery
+    if (Array.isArray(data.archive_images) && data.archive_images.length) return data.archive_images
+    if (Array.isArray(data.gallery_images) && data.gallery_images.length) return data.gallery_images
+    // Try destinations gallery_images
+    if (Array.isArray(data.destinations)) {
+      const destImgs = data.destinations.flatMap((d: any) => d.gallery_images || d.galleryImages || [])
+      if (destImgs.length) return destImgs
+    }
+    return []
+  }
 
   useEffect(() => {
     if (!slug) return
@@ -69,7 +107,12 @@ export default function TourDetailPage() {
         return res.json()
       })
       .then((data) => {
-        setTourData(data)
+        // If API returns {success, data}, use data
+        if (data && typeof data === "object" && "data" in data && data.data) {
+          setTourData(data.data)
+        } else {
+          setTourData(data)
+        }
         setCurrentImageIndex(0)
         setLoading(false)
       })
@@ -83,12 +126,74 @@ export default function TourDetailPage() {
   if (error) return <ErrorMessage message={error} />
   if (!tourData) return null
 
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % (tourData.gallery?.length || 1))
-  }
+  // Compose gallery: main image + gallery images, deduped
+  const mainImage = getMainImage(tourData)
+  const galleryImages = [mainImage, ...getGalleryImages(tourData).filter((img: string) => img && img !== mainImage)]
+  const hasGallery = galleryImages.length > 1
 
+  // For highlights, parse if stringified array
+  const highlights: string[] = parseJsonArrayString(tourData.highlights)
+
+  // For included/not_included, fallback to notIncluded/included if needed
+  const included: string[] = tourData.included || tourData.included_items || []
+  const notIncluded: string[] = tourData.not_included || tourData.notIncluded || []
+
+  // For itinerary, fallback to tour_plan if no itinerary
+  const itinerary: any[] = Array.isArray(tourData.itinerary) && tourData.itinerary.length
+    ? tourData.itinerary
+    : (tourData.tour_plan
+        ? [{ day: 1, title: "Tour Plan", description: tourData.tour_plan, activities: [] }]
+        : [])
+
+  // For accommodations, fallback to empty
+  const accommodations: any[] = Array.isArray(tourData.accommodations) ? tourData.accommodations : []
+
+  // For reviews, fallback to empty
+  const reviews: any[] = Array.isArray(tourData.reviews) ? tourData.reviews : []
+
+  // For rating, fallback to 0
+  const rating = typeof tourData.rating === "number" ? tourData.rating : 0
+
+  // For group size, try group_size, groupSize, max_participants, min_participants
+  const groupSize =
+    tourData.group_size ||
+    tourData.groupSize ||
+    (tourData.max_participants && tourData.min_participants
+      ? `${tourData.min_participants}-${tourData.max_participants}`
+      : tourData.max_participants || tourData.min_participants || "")
+
+  // For destination, try destination, meeting_point, destinations[0].name
+  const destination =
+    tourData.destination ||
+    tourData.meeting_point ||
+    (Array.isArray(tourData.destinations) && tourData.destinations[0]?.name) ||
+    ""
+
+  // For languages, parse if array or string
+  const languages: string[] = parseJsonArrayString(tourData.languages)
+
+  // For price, fallback to 0
+  const price = tourData.price || 0
+  const originalPrice = tourData.originalPrice || tourData.original_price
+
+  // For title, fallback to name
+  const title = tourData.title || tourData.name || ""
+
+  // For description, fallback to empty
+  const description = tourData.description || ""
+
+  // For category, fallback to empty
+  const category = tourData.category || ""
+
+  // For amenities, fallback to empty
+  // For hotels, fallback to empty
+
+  // Gallery navigation
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length)
+  }
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + (tourData.gallery?.length || 1)) % (tourData.gallery?.length || 1))
+    setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length)
   }
 
   return (
@@ -97,15 +202,15 @@ export default function TourDetailPage() {
       <section className="relative h-[70vh] overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src={typeof tourData.mainImage === 'string' ? tourData.mainImage : "/placeholder.svg"}
-            alt={tourData.title}
+            src={galleryImages[currentImageIndex] || "/placeholder.svg"}
+            alt={title}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/40" />
         </div>
 
         {/* Gallery Navigation */}
-        {tourData.gallery?.length > 1 && (
+        {hasGallery && (
           <>
             <button
               onClick={prevImage}
@@ -123,9 +228,9 @@ export default function TourDetailPage() {
         )}
 
         {/* Gallery Indicators */}
-        {tourData.gallery?.length > 1 && (
+        {hasGallery && (
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 flex gap-2">
-            {tourData.gallery.map((_: any, index: number) => (
+            {galleryImages.map((_: any, index: number) => (
               <button
                 key={index}
                 onClick={() => setCurrentImageIndex(index)}
@@ -160,25 +265,25 @@ export default function TourDetailPage() {
           <div className="container mx-auto">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
               <div className="flex items-center gap-2 mb-4">
-                {tourData.category && (
-                  <Badge className="bg-gold-500 text-white">{tourData.category}</Badge>
+                {category && (
+                  <Badge className="bg-gold-500 text-white">{category}</Badge>
                 )}
                 <div className="flex items-center gap-1 text-white">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{tourData.rating}</span>
+                  <span className="font-medium">{rating}</span>
                   <span className="text-gray-300">
-                    ({Array.isArray(tourData.reviews) ? tourData.reviews.length : 0} reviews)
+                    ({reviews.length} reviews)
                   </span>
                 </div>
               </div>
 
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{tourData.title}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{title}</h1>
 
               <div className="flex flex-wrap items-center gap-6 text-white mb-6">
-                {tourData.destination && (
+                {destination && (
                   <div className="flex items-center gap-2">
                     <MapPin className="w-5 h-5" />
-                    <span>{tourData.destination}</span>
+                    <span>{destination}</span>
                   </div>
                 )}
                 {tourData.duration && (
@@ -187,19 +292,19 @@ export default function TourDetailPage() {
                     <span>{tourData.duration}</span>
                   </div>
                 )}
-                {tourData.groupSize && (
+                {groupSize && (
                   <div className="flex items-center gap-2">
                     <Users className="w-5 h-5" />
-                    <span>{tourData.groupSize}</span>
+                    <span>{groupSize}</span>
                   </div>
                 )}
               </div>
 
               <div className="flex items-center gap-4">
                 <div className="text-white">
-                  <span className="text-3xl font-bold">${tourData.price}</span>
-                  {tourData.originalPrice && (
-                    <span className="text-lg text-gray-300 line-through ml-2">${tourData.originalPrice}</span>
+                  <span className="text-3xl font-bold">${price}</span>
+                  {originalPrice && (
+                    <span className="text-lg text-gray-300 line-through ml-2">${originalPrice}</span>
                   )}
                   <span className="text-gray-300 ml-2">per person</span>
                 </div>
@@ -213,16 +318,16 @@ export default function TourDetailPage() {
                   <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle className="text-2xl font-bold text-bronze-900">
-                        Book Your Tour: {tourData.title}
+                        Book Your Tour: {title}
                       </DialogTitle>
                     </DialogHeader>
                     <TourBookingForm
                       preSelectedTour={{
                         id: tourData.id,
-                        name: tourData.title,
-                        price: tourData.price,
+                        name: title,
+                        price: price,
                         duration: tourData.duration,
-                        image: tourData.gallery?.[0],
+                        image: galleryImages[0],
                       }}
                       itemType="tour"
                       onClose={() => setIsBookingOpen(false)}
@@ -257,18 +362,21 @@ export default function TourDetailPage() {
                       <CardTitle className="text-2xl text-bronze-900">Tour Description</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-bronze-700 leading-relaxed mb-6">{tourData.description}</p>
+                      <p className="text-bronze-700 leading-relaxed mb-6">{description}</p>
 
                       <div className="grid md:grid-cols-2 gap-8">
                         <div>
                           <h3 className="text-xl font-semibold text-bronze-900 mb-4">Tour Highlights</h3>
                           <ul className="space-y-2">
-                            {(tourData.highlights || []).map((highlight: string, index: number) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <CheckCircle className="w-5 h-5 text-gold-500 mt-0.5 flex-shrink-0" />
-                                <span className="text-bronze-700">{highlight}</span>
-                              </li>
-                            ))}
+                            {highlights.length > 0
+                              ? highlights.map((highlight: string, index: number) => (
+                                  <li key={index} className="flex items-start gap-2">
+                                    <CheckCircle className="w-5 h-5 text-gold-500 mt-0.5 flex-shrink-0" />
+                                    <span className="text-bronze-700">{highlight}</span>
+                                  </li>
+                                ))
+                              : <li className="text-bronze-500">No highlights listed.</li>
+                            }
                           </ul>
                         </div>
 
@@ -281,10 +389,10 @@ export default function TourDetailPage() {
                                 <span className="font-medium text-bronze-900">{tourData.duration}</span>
                               </div>
                             )}
-                            {tourData.groupSize && (
+                            {groupSize && (
                               <div className="flex justify-between">
                                 <span className="text-bronze-600">Group Size:</span>
-                                <span className="font-medium text-bronze-900">{tourData.groupSize}</span>
+                                <span className="font-medium text-bronze-900">{groupSize}</span>
                               </div>
                             )}
                             {tourData.difficulty && (
@@ -293,19 +401,17 @@ export default function TourDetailPage() {
                                 <span className="font-medium text-bronze-900">{tourData.difficulty}</span>
                               </div>
                             )}
-                            {tourData.minAge && (
+                            {tourData.min_age && (
                               <div className="flex justify-between">
                                 <span className="text-bronze-600">Min Age:</span>
-                                <span className="font-medium text-bronze-900">{tourData.minAge}+</span>
+                                <span className="font-medium text-bronze-900">{tourData.min_age}+</span>
                               </div>
                             )}
-                            {tourData.languages && (
+                            {languages.length > 0 && (
                               <div className="flex justify-between">
                                 <span className="text-bronze-600">Languages:</span>
                                 <span className="font-medium text-bronze-900">
-                                  {Array.isArray(tourData.languages)
-                                    ? tourData.languages.join(", ")
-                                    : tourData.languages}
+                                  {languages.join(", ")}
                                 </span>
                               </div>
                             )}
@@ -326,12 +432,16 @@ export default function TourDetailPage() {
                       </CardHeader>
                       <CardContent>
                         <ul className="space-y-2">
-                          {(tourData.included || []).map((item: string, index: number) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <CheckCircle className="w-4 h-4 text-green-600 mt-1 flex-shrink-0" />
-                              <span className="text-bronze-700 text-sm">{item}</span>
-                            </li>
-                          ))}
+                          {included.length > 0 ? (
+                            included.map((item: string, index: number) => (
+                              <li key={index} className="flex items-start gap-2">
+                                <CheckCircle className="w-4 h-4 text-green-600 mt-1 flex-shrink-0" />
+                                <span className="text-bronze-700 text-sm">{item}</span>
+                              </li>
+                            ))
+                          ) : (
+                            <li className="text-bronze-500">No inclusions listed.</li>
+                          )}
                         </ul>
                       </CardContent>
                     </Card>
@@ -345,12 +455,16 @@ export default function TourDetailPage() {
                       </CardHeader>
                       <CardContent>
                         <ul className="space-y-2">
-                          {(tourData.notIncluded || []).map((item: string, index: number) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <div className="w-4 h-4 border-2 border-red-600 rounded-full mt-1 flex-shrink-0" />
-                              <span className="text-bronze-700 text-sm">{item}</span>
-                            </li>
-                          ))}
+                          {notIncluded.length > 0 ? (
+                            notIncluded.map((item: string, index: number) => (
+                              <li key={index} className="flex items-start gap-2">
+                                <div className="w-4 h-4 border-2 border-red-600 rounded-full mt-1 flex-shrink-0" />
+                                <span className="text-bronze-700 text-sm">{item}</span>
+                              </li>
+                            ))
+                          ) : (
+                            <li className="text-bronze-500">No exclusions listed.</li>
+                          )}
                         </ul>
                       </CardContent>
                     </Card>
@@ -359,111 +473,127 @@ export default function TourDetailPage() {
 
                 {/* Itinerary Tab */}
                 <TabsContent value="itinerary" className="space-y-6">
-                  {(tourData.itinerary || []).map((day: any, index: number) => (
-                    <Card key={index}>
-                      <CardHeader>
-                        <CardTitle className="text-xl text-bronze-900 flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gold-500 text-white rounded-full flex items-center justify-center font-bold">
-                            {day.day}
-                          </div>
-                          {day.title}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-bronze-700 mb-4">{day.description}</p>
+                  {itinerary.length > 0 ? (
+                    itinerary.map((day: any, index: number) => (
+                      <Card key={index}>
+                        <CardHeader>
+                          <CardTitle className="text-xl text-bronze-900 flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gold-500 text-white rounded-full flex items-center justify-center font-bold">
+                              {day.day}
+                            </div>
+                            {day.title}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-bronze-700 mb-4">{day.description}</p>
 
-                        <div className="grid md:grid-cols-3 gap-4">
-                          <div>
-                            <h4 className="font-semibold text-bronze-900 mb-2 flex items-center gap-2">
-                              <Calendar className="w-4 h-4" />
-                              Activities
-                            </h4>
-                            <ul className="space-y-1">
-                              {(day.activities || []).map((activity: string, i: number) => (
-                                <li key={i} className="text-sm text-bronze-600">
-                                  • {activity}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
+                          <div className="grid md:grid-cols-3 gap-4">
+                            <div>
+                              <h4 className="font-semibold text-bronze-900 mb-2 flex items-center gap-2">
+                                <Calendar className="w-4 h-4" />
+                                Activities
+                              </h4>
+                              <ul className="space-y-1">
+                                {(day.activities || []).length > 0 ? (
+                                  (day.activities || []).map((activity: string, i: number) => (
+                                    <li key={i} className="text-sm text-bronze-600">
+                                      • {activity}
+                                    </li>
+                                  ))
+                                ) : (
+                                  <li className="text-bronze-500">No activities listed.</li>
+                                )}
+                              </ul>
+                            </div>
 
-                          <div>
-                            <h4 className="font-semibold text-bronze-900 mb-2 flex items-center gap-2">
-                              <Utensils className="w-4 h-4" />
-                              Meals
-                            </h4>
-                            <ul className="space-y-1">
-                              {(day.meals || []).map((meal: string, i: number) => (
-                                <li key={i} className="text-sm text-bronze-600">
-                                  • {meal}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
+                            <div>
+                              <h4 className="font-semibold text-bronze-900 mb-2 flex items-center gap-2">
+                                <Utensils className="w-4 h-4" />
+                                Meals
+                              </h4>
+                              <ul className="space-y-1">
+                                {(day.meals || []).length > 0 ? (
+                                  (day.meals || []).map((meal: string, i: number) => (
+                                    <li key={i} className="text-sm text-bronze-600">
+                                      • {meal}
+                                    </li>
+                                  ))
+                                ) : (
+                                  <li className="text-bronze-500">No meals listed.</li>
+                                )}
+                              </ul>
+                            </div>
 
-                          <div>
-                            <h4 className="font-semibold text-bronze-900 mb-2 flex items-center gap-2">
-                              <Hotel className="w-4 h-4" />
-                              Accommodation
-                            </h4>
-                            <p className="text-sm text-bronze-600">{day.accommodation}</p>
+                            <div>
+                              <h4 className="font-semibold text-bronze-900 mb-2 flex items-center gap-2">
+                                <Hotel className="w-4 h-4" />
+                                Accommodation
+                              </h4>
+                              <p className="text-sm text-bronze-600">{day.accommodation || "N/A"}</p>
+                            </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <div className="text-bronze-500">No itinerary available.</div>
+                  )}
                 </TabsContent>
 
                 {/* Accommodations Tab */}
                 <TabsContent value="accommodations" className="space-y-6">
-                  {(tourData.accommodations || []).map((hotel: any, index: number) => (
-                    <Card key={index}>
-                      <CardContent className="p-6">
-                        <div className="grid md:grid-cols-3 gap-6">
-                          <img
-                            src={hotel.image || "/placeholder.svg"}
-                            alt={hotel.name}
-                            className="w-full h-48 object-cover rounded-lg"
-                          />
+                  {accommodations.length > 0 ? (
+                    accommodations.map((hotel: any, index: number) => (
+                      <Card key={index}>
+                        <CardContent className="p-6">
+                          <div className="grid md:grid-cols-3 gap-6">
+                            <img
+                              src={hotel.image || "/placeholder.svg"}
+                              alt={hotel.name}
+                              className="w-full h-48 object-cover rounded-lg"
+                            />
 
-                          <div className="md:col-span-2">
-                            <div className="flex items-start justify-between mb-4">
+                            <div className="md:col-span-2">
+                              <div className="flex items-start justify-between mb-4">
+                                <div>
+                                  <h3 className="text-xl font-bold text-bronze-900">{hotel.name}</h3>
+                                  <p className="text-bronze-600">{hotel.type}</p>
+                                  <p className="text-sm text-bronze-500">{hotel.nights} nights</p>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  {[...Array(4)].map((_, i) => (
+                                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                  ))}
+                                </div>
+                              </div>
+
                               <div>
-                                <h3 className="text-xl font-bold text-bronze-900">{hotel.name}</h3>
-                                <p className="text-bronze-600">{hotel.type}</p>
-                                <p className="text-sm text-bronze-500">{hotel.nights} nights</p>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                {[...Array(4)].map((_, i) => (
-                                  <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                ))}
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="font-semibold text-bronze-900 mb-2">Amenities</h4>
-                              <div className="flex flex-wrap gap-2">
-                                {(hotel.amenities || []).map((amenity: string, i: number) => (
-                                  <Badge key={i} variant="secondary" className="bg-bronze-100 text-bronze-700">
-                                    {amenity}
-                                  </Badge>
-                                ))}
+                                <h4 className="font-semibold text-bronze-900 mb-2">Amenities</h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {(hotel.amenities || []).map((amenity: string, i: number) => (
+                                    <Badge key={i} variant="secondary" className="bg-bronze-100 text-bronze-700">
+                                      {amenity}
+                                    </Badge>
+                                  ))}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <div className="text-bronze-500">No hotel accommodations listed.</div>
+                  )}
                 </TabsContent>
 
                 {/* Gallery Tab */}
                 <TabsContent value="gallery">
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {(tourData.destinations || []).flatMap((destination: any) =>
-                      (destination.galleryImages || []).map((image: string, index: number) => (
+                    {galleryImages.length > 0 ? (
+                      galleryImages.map((image: string, index: number) => (
                         <motion.div
-                          key={`${destination.id}-${index}`}
+                          key={index}
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -472,7 +602,7 @@ export default function TourDetailPage() {
                         >
                           <img
                             src={typeof image === 'string' ? image : "/placeholder.svg"}
-                            alt={`Gallery ${index + 1} - ${destination.name}`}
+                            alt={`Gallery ${index + 1} - ${title}`}
                             className="w-full h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
                           />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 rounded-lg flex items-center justify-center">
@@ -480,6 +610,8 @@ export default function TourDetailPage() {
                           </div>
                         </motion.div>
                       ))
+                    ) : (
+                      <div className="text-bronze-500">No gallery images available.</div>
                     )}
                   </div>
                 </TabsContent>
@@ -495,42 +627,46 @@ export default function TourDetailPage() {
                             <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                           ))}
                         </div>
-                        <span className="text-lg font-semibold text-bronze-900">{tourData.rating}</span>
+                        <span className="text-lg font-semibold text-bronze-900">{rating}</span>
                         <span className="text-bronze-600">
-                          ({Array.isArray(tourData.reviews) ? tourData.reviews.length : 0} reviews)
+                          ({reviews.length} reviews)
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {(tourData.reviews || []).map((review: any, index: number) => (
-                    <Card key={index}>
-                      <CardContent className="p-6">
-                        <div className="flex items-start gap-4">
-                          <img
-                            src={review.avatar || "/placeholder.svg"}
-                            alt={review.name}
-                            className="w-12 h-12 rounded-full object-cover"
-                          />
+                  {reviews.length > 0 ? (
+                    reviews.map((review: any, index: number) => (
+                      <Card key={index}>
+                        <CardContent className="p-6">
+                          <div className="flex items-start gap-4">
+                            <img
+                              src={review.avatar || "/placeholder.svg"}
+                              alt={review.name}
+                              className="w-12 h-12 rounded-full object-cover"
+                            />
 
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-semibold text-bronze-900">{review.name}</h4>
-                              <span className="text-sm text-bronze-500">{review.date}</span>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="font-semibold text-bronze-900">{review.name}</h4>
+                                <span className="text-sm text-bronze-500">{review.date}</span>
+                              </div>
+
+                              <div className="flex items-center gap-1 mb-3">
+                                {[...Array(review.rating || 0)].map((_: any, i: number) => (
+                                  <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                ))}
+                              </div>
+
+                              <p className="text-bronze-700">{review.comment}</p>
                             </div>
-
-                            <div className="flex items-center gap-1 mb-3">
-                              {[...Array(review.rating)].map((_: any, i: number) => (
-                                <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                              ))}
-                            </div>
-
-                            <p className="text-bronze-700">{review.comment}</p>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <div className="text-bronze-500">No reviews yet.</div>
+                  )}
                 </TabsContent>
               </Tabs>
             </div>
@@ -544,9 +680,9 @@ export default function TourDetailPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-gold-600">${tourData.price}</div>
-                    {tourData.originalPrice && (
-                      <div className="text-lg text-bronze-500 line-through">${tourData.originalPrice}</div>
+                    <div className="text-3xl font-bold text-gold-600">${price}</div>
+                    {originalPrice && (
+                      <div className="text-lg text-bronze-500 line-through">${originalPrice}</div>
                     )}
                     <div className="text-bronze-600">per person</div>
                   </div>
@@ -558,16 +694,16 @@ export default function TourDetailPage() {
                     <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-bronze-900">
-                          Book Your Tour: {tourData.title}
+                          Book Your Tour: {title}
                         </DialogTitle>
                       </DialogHeader>
                       <TourBookingForm
                         preSelectedTour={{
                           id: tourData.id,
-                          name: tourData.title,
-                          price: tourData.price,
+                          name: title,
+                          price: price,
                           duration: tourData.duration,
-                          image: tourData.gallery?.[0],
+                          image: galleryImages[0],
                         }}
                         itemType="tour"
                         onClose={() => setIsBookingOpen(false)}
@@ -595,16 +731,16 @@ export default function TourDetailPage() {
                       <span className="text-bronze-700">{tourData.duration}</span>
                     </div>
                   )}
-                  {tourData.groupSize && (
+                  {groupSize && (
                     <div className="flex items-center gap-3">
                       <Users className="w-5 h-5 text-gold-600" />
-                      <span className="text-bronze-700">{tourData.groupSize}</span>
+                      <span className="text-bronze-700">{groupSize}</span>
                     </div>
                   )}
-                  {tourData.destination && (
+                  {destination && (
                     <div className="flex items-center gap-3">
                       <MapPin className="w-5 h-5 text-gold-600" />
-                      <span className="text-bronze-700">{tourData.destination}</span>
+                      <span className="text-bronze-700">{destination}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-3">

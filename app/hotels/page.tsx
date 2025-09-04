@@ -338,7 +338,7 @@ export default function HotelsPage() {
             <>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {sortedHotels.map((hotel: any, index: number) => {
-                  const imageUrl = getImageUrl(hotel.mainImage, hotel.mainimage)
+                  const imageUrl = getImageUrl(hotel.main_image, hotel.main_image)
                   const category = getCategoryDisplay(hotel.category)
                   const type = getTypeFromCategory(hotel.category)
                   const country = getCountryFromLocation(hotel.location)

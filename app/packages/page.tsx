@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Star, Search, Filter, Users, Hotel, Calendar, CheckCircle, MapPin, Clock, Plane } from "lucide-react"
 import Link from "next/link"
 import TourBookingPopup from "@/components/tour-booking-popup"
-import {BaseUrl} from "@/BaseUrl"
+import { BaseUrl } from "@/BaseUrl"
 
 const categories = ["All", "Economy", "Premium", "Executive"]
 const priceRanges = ["All", "Under $2500", "$2500-$3500", "$3500-$4500", "Over $4500"]
@@ -41,12 +41,11 @@ export default function PackagesPage() {
       setLoading(true)
       setError(null)
       try {
-        // If BaseUrl is a function, call it. If it's a string, use as is.
         const baseUrl = typeof BaseUrl === "function" ? BaseUrl() : BaseUrl
         const res = await fetch(`${baseUrl}/api/umrah`)
         if (!res.ok) throw new Error("Failed to fetch packages")
         const data = await res.json()
-        setUmrahPackages(data)
+        setUmrahPackages(data?.data?.packages || [])
       } catch (err: any) {
         setError(err.message || "Failed to load packages")
       } finally {
@@ -56,36 +55,121 @@ export default function PackagesPage() {
     fetchPackages()
   }, [])
 
-  const filteredPackages = umrahPackages.filter((pkg) => {
-    const matchesSearch = pkg.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === "All" || pkg.category === selectedCategory
+  // Helper: get highlights (for compatibility with new API)
+  const getHighlights = (pkg: any) => {
+    // Try both 'highlights' and 'package_include'
+    if (Array.isArray(pkg.highlights) && pkg.highlights.length > 0) return pkg.highlights
+    if (Array.isArray(pkg.package_include) && pkg.package_include.length > 0) return pkg.package_include
+    return []
+  }
+
+  // Helper: get included
+  const getIncluded = (pkg: any) => {
+    if (Array.isArray(pkg.included) && pkg.included.length > 0) return pkg.included
+    if (Array.isArray(pkg.package_include) && pkg.package_include.length > 0) return pkg.package_include
+    return []
+  }
+
+  // Helper: get group size
+  const getGroupSize = (pkg: any) => {
+    return pkg.group_size || pkg.groupSize || ""
+  }
+
+  // Helper: get hotels
+  const getHotels = (pkg: any) => {
+    return Array.isArray(pkg.hotels) ? pkg.hotels : []
+  }
+
+  // Helper: get price
+  const getPrice = (pkg: any) => {
+    return pkg.price
+  }
+
+  // Helper: get category/type
+  const getCategory = (pkg: any) => {
+    return pkg.category || pkg.package_type || ""
+  }
+
+  // Helper: get duration
+  const getDuration = (pkg: any) => {
+    return pkg.duration || pkg.total_duration || ""
+  }
+
+  // Helper: get main image
+  const getMainImage = (pkg: any) => {
+    return pkg.mainimage || pkg.main_image || "/placeholder.svg"
+  }
+
+  // Helper: get slug
+  const getSlug = (pkg: any) => {
+    return pkg.slug || pkg.id
+  }
+
+  // Helper: get description
+  const getDescription = (pkg: any) => {
+    return pkg.description || ""
+  }
+
+  // Helper: get itinerary
+  const getItinerary = (pkg: any) => {
+    return Array.isArray(pkg.itinerary) ? pkg.itinerary : []
+  }
+
+  // Helper: get rating
+  const getRating = (pkg: any) => {
+    return typeof pkg.rating === "number" ? pkg.rating : 4.5
+  }
+
+  // Helper: get reviews
+  const getReviews = (pkg: any) => {
+    return typeof pkg.reviews === "number" ? pkg.reviews : 0
+  }
+
+  // Helper: get original price
+  const getOriginalPrice = (pkg: any) => {
+    return pkg.originalPrice
+  }
+
+  // Helper: get currency
+  const getCurrency = (pkg: any) => {
+    return pkg.currency || "USD"
+  }
+
+  // Filtering logic
+  const filteredPackages = umrahPackages?.filter((pkg) => {
+    const name = pkg.name || ""
+    const category = getCategory(pkg)
+    const duration = getDuration(pkg)
+    const price = getPrice(pkg)
+
+    const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCategory = selectedCategory === "All" || category === selectedCategory
     const matchesDuration =
       selectedDuration === "All" ||
-      (selectedDuration === "7-10 days" && Number.parseInt(pkg.duration) <= 10) ||
-      (selectedDuration === "11-14 days" &&
-        Number.parseInt(pkg.duration) >= 11 &&
-        Number.parseInt(pkg.duration) <= 14) ||
-      (selectedDuration === "15+ days" && Number.parseInt(pkg.duration) >= 15)
+      (selectedDuration === "7-10 days" && Number(duration) <= 10) ||
+      (selectedDuration === "11-14 days" && Number(duration) >= 11 && Number(duration) <= 14) ||
+      (selectedDuration === "15+ days" && Number(duration) >= 15)
     const matchesPrice =
       selectedPriceRange === "All" ||
-      (selectedPriceRange === "Under $2500" && pkg.price < 2500) ||
-      (selectedPriceRange === "$2500-$3500" && pkg.price >= 2500 && pkg.price <= 3500) ||
-      (selectedPriceRange === "$3500-$4500" && pkg.price >= 3500 && pkg.price <= 4500) ||
-      (selectedPriceRange === "Over $4500" && pkg.price > 4500)
+      (selectedPriceRange === "Under $2500" && price < 2500) ||
+      (selectedPriceRange === "$2500-$3500" && price >= 2500 && price <= 3500) ||
+      (selectedPriceRange === "$3500-$4500" && price >= 3500 && price <= 4500) ||
+      (selectedPriceRange === "Over $4500" && price > 4500)
 
     return matchesSearch && matchesCategory && matchesDuration && matchesPrice
   })
 
+  // Sorting logic
   const sortedPackages = [...filteredPackages].sort((a, b) => {
     switch (sortBy) {
       case "price-low":
-        return a.price - b.price
+        return getPrice(a) - getPrice(b)
       case "price-high":
-        return b.price - a.price
+        return getPrice(b) - getPrice(a)
       case "rating":
-        return b.rating - a.rating
+        return getRating(b) - getRating(a)
       default:
-        return b.reviews - a.reviews
+        return getReviews(b) - getReviews(a)
     }
   })
 
@@ -233,209 +317,261 @@ export default function PackagesPage() {
           ) : (
             <>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {sortedPackages.map((pkg, index) => (
-                  <motion.div
-                    key={pkg.id}
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                    whileHover={{ y: -10 }}
-                    className="group"
-                  >
-                    <Card className="overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
-                      <div className="relative overflow-hidden">
-                        <img
-                          src={typeof pkg.mainimage === 'string' ? pkg.mainimage : "/placeholder.svg"}
-                          alt={pkg.name}
-                          className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                {sortedPackages.map((pkg, index) => {
+                  const highlights = getHighlights(pkg)
+                  const included = getIncluded(pkg)
+                  const hotels = getHotels(pkg)
+                  const groupSize = getGroupSize(pkg)
+                  const price = getPrice(pkg)
+                  const category = getCategory(pkg)
+                  const duration = getDuration(pkg)
+                  const mainImage = getMainImage(pkg)
+                  const slug = getSlug(pkg)
+                  const description = getDescription(pkg)
+                  const itinerary = getItinerary(pkg)
+                  const rating = getRating(pkg)
+                  const reviews = getReviews(pkg)
+                  const originalPrice = getOriginalPrice(pkg)
+                  const currency = getCurrency(pkg)
 
-                        <div className="absolute top-4 left-4">
-                          <Badge
-                            className={`${categoryColors[pkg.category as keyof typeof categoryColors]} font-semibold border`}
-                          >
-                            {pkg.category}
-                          </Badge>
-                        </div>
+                  // Show "Read More" button only if there are highlights or itinerary, otherwise show included directly
+                  const canExpand = (Array.isArray(highlights) && highlights.length > 0) || (Array.isArray(itinerary) && itinerary.length > 0)
 
-                        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                            <span className="text-sm font-medium">{pkg.rating}</span>
+                  return (
+                    <motion.div
+                      key={pkg.id}
+                      initial={{ opacity: 0, y: 50 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      whileHover={{ y: -10 }}
+                      className="group"
+                    >
+                      <Card className="overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
+                        <div className="relative overflow-hidden">
+                          <img
+                            src={typeof mainImage === 'string' ? mainImage : "/placeholder.svg"}
+                            alt={pkg.name}
+                            className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+                          <div className="absolute top-4 left-4">
+                            <Badge
+                              className={`${categoryColors[category as keyof typeof categoryColors] || ""} font-semibold border`}
+                            >
+                              {category}
+                            </Badge>
+                          </div>
+
+                          <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                              <span className="text-sm font-medium">{rating}</span>
+                            </div>
+                          </div>
+
+                          {/* Price Badge */}
+                          <div className="absolute bottom-4 right-4 bg-gold-500 text-white rounded-lg px-3 py-2">
+                            <div className="text-right">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl font-bold">
+                                  {currency === "USD" ? "$" : currency}{price}
+                                </span>
+                                {originalPrice && (
+                                  <span className="text-xs line-through text-gold-200">
+                                    {currency === "USD" ? "$" : currency}{originalPrice}
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-xs">per person</span>
+                            </div>
                           </div>
                         </div>
 
-                        {/* Price Badge */}
-                        <div className="absolute bottom-4 right-4 bg-gold-500 text-white rounded-lg px-3 py-2">
-                          <div className="text-right">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl font-bold">${pkg.price}</span>
-                              {pkg.originalPrice && (
-                                <span className="text-xs line-through text-gold-200">${pkg.originalPrice}</span>
+                        <CardContent className="p-6 flex flex-col flex-1">
+                          <div className="mb-4">
+                            <h3 className="text-xl font-bold text-bronze-900 mb-1 group-hover:text-gold-600 transition-colors">
+                              {pkg.name}
+                            </h3>
+                            <p className="text-sm text-bronze-600 mb-3">{pkg.subtitle}</p>
+
+                            <div className="flex items-center gap-4 text-sm text-bronze-600 mb-3">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                <span>{duration}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Users className="w-4 h-4" />
+                                <span>{groupSize}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Hotels Section */}
+                          <div className="mb-4">
+                            <h4 className="font-semibold text-bronze-900 mb-2 flex items-center gap-2">
+                              <Hotel className="w-4 h-4 text-gold-600" />
+                              Hotels
+                            </h4>
+                            <div className="space-y-2">
+                              {hotels.length > 0 ? (
+                                hotels.map((hotel: any, i: number) => (
+                                  <div key={i} className="bg-gray-50 rounded-lg p-3">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="text-sm font-medium text-bronze-900 truncate flex-1 mr-2">
+                                        {hotel.name}
+                                      </span>
+                                      <div className="flex items-center gap-1">
+                                        {[...Array(hotel.stars || 0)].map((_: any, starIndex: number) => (
+                                          <Star key={starIndex} className="w-3 h-3 fill-gold-400 text-gold-400" />
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center justify-between text-xs text-bronze-600">
+                                      <span className="flex items-center gap-1">
+                                        <MapPin className="w-3 h-3" />
+                                        {hotel.distance}
+                                      </span>
+                                      <span className="flex items-center gap-1">
+                                        <Clock className="w-3 h-3" />
+                                        {hotel.nights} nights
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-xs text-bronze-600">No hotel details available</div>
                               )}
                             </div>
-                            <span className="text-xs">per person</span>
                           </div>
-                        </div>
-                      </div>
 
-                      <CardContent className="p-6 flex flex-col flex-1">
-                        <div className="mb-4">
-                          <h3 className="text-xl font-bold text-bronze-900 mb-1 group-hover:text-gold-600 transition-colors">
-                            {pkg.name}
-                          </h3>
-                          <p className="text-sm text-bronze-600 mb-3">{pkg.subtitle}</p>
+                          {/* Description */}
+                          <div className="mb-4 flex-1">
+                            <p className="text-sm text-bronze-700 leading-relaxed">
+                              {isExpanded(pkg.id) ? description : `${description.substring(0, 120)}${description.length > 120 ? "..." : ""}`}
+                            </p>
 
-                          <div className="flex items-center gap-4 text-sm text-bronze-600 mb-3">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              <span>{pkg.duration}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Users className="w-4 h-4" />
-                              <span>{pkg.groupSize}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Hotels Section */}
-                        <div className="mb-4">
-                          <h4 className="font-semibold text-bronze-900 mb-2 flex items-center gap-2">
-                            <Hotel className="w-4 h-4 text-gold-600" />
-                            Hotels
-                          </h4>
-                          <div className="space-y-2">
-                            {pkg.hotels.map((hotel: any, i: number) => (
-                              <div key={i} className="bg-gray-50 rounded-lg p-3">
-                                <div className="flex items-center justify-between mb-1">
-                                  <span className="text-sm font-medium text-bronze-900 truncate flex-1 mr-2">
-                                    {hotel.name}
-                                  </span>
-                                  <div className="flex items-center gap-1">
-                                    {[...Array(hotel.stars)].map((_: any, starIndex: number) => (
-                                      <Star key={starIndex} className="w-3 h-3 fill-gold-400 text-gold-400" />
-                                    ))}
-                                  </div>
-                                </div>
-                                <div className="flex items-center justify-between text-xs text-bronze-600">
-                                  <span className="flex items-center gap-1">
-                                    <MapPin className="w-3 h-3" />
-                                    {hotel.distance}
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    {hotel.nights} nights
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Description */}
-                        <div className="mb-4 flex-1">
-                          <p className="text-sm text-bronze-700 leading-relaxed">
-                            {isExpanded(pkg.id) ? pkg.description : `${pkg.description.substring(0, 120)}...`}
-                          </p>
-
-                          {/* Expanded Content */}
-                          {isExpanded(pkg.id) && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              exit={{ opacity: 0, height: 0 }}
-                              transition={{ duration: 0.3 }}
-                              className="mt-4 space-y-3"
-                            >
-                              {/* Highlights */}
-                              <div>
-                                <h5 className="font-semibold text-bronze-900 mb-2">Package Highlights</h5>
-                                <div className="grid grid-cols-2 gap-1">
-                                  {pkg.highlights.map((highlight: string, i: number) => (
-                                    <div key={i} className="flex items-center gap-1">
-                                      <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
-                                      <span className="text-xs text-bronze-700">{highlight}</span>
+                            {/* Expanded Content or Included if no highlights */}
+                            {isExpanded(pkg.id) && canExpand && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="mt-4 space-y-3"
+                              >
+                                {/* Highlights */}
+                                {Array.isArray(highlights) && highlights.length > 0 && (
+                                  <div>
+                                    <h5 className="font-semibold text-bronze-900 mb-2">Package Highlights</h5>
+                                    <div className="grid grid-cols-2 gap-1">
+                                      {highlights.map((highlight: string, i: number) => (
+                                        <div key={i} className="flex items-center gap-1">
+                                          <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+                                          <span className="text-xs text-bronze-700">{highlight.replace(/^\.\s*/, "")}</span>
+                                        </div>
+                                      ))}
                                     </div>
-                                  ))}
-                                </div>
-                              </div>
+                                  </div>
+                                )}
 
-                              {/* Included */}
-                              <div>
+                                {/* Included */}
+                                {Array.isArray(included) && included.length > 0 && (
+                                  <div>
+                                    <h5 className="font-semibold text-bronze-900 mb-2">What's Included</h5>
+                                    <div className="grid grid-cols-2 gap-1">
+                                      {included.map((item: string, i: number) => (
+                                        <div key={i} className="flex items-center gap-1">
+                                          <CheckCircle className="w-3 h-3 text-blue-500 flex-shrink-0" />
+                                          <span className="text-xs text-bronze-700">{item.replace(/^\.\s*/, "")}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Brief Itinerary */}
+                                {Array.isArray(itinerary) && itinerary.length > 0 && (
+                                  <div>
+                                    <h5 className="font-semibold text-bronze-900 mb-2">Brief Itinerary</h5>
+                                    <div className="space-y-1">
+                                      {itinerary.map((day: string, i: number) => (
+                                        <div key={i} className="flex items-start gap-2">
+                                          <Plane className="w-3 h-3 text-gold-600 mt-1 flex-shrink-0" />
+                                          <span className="text-xs text-bronze-700">{day}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </motion.div>
+                            )}
+
+                            {/* If not expandable, show included directly */}
+                            {!canExpand && Array.isArray(included) && included.length > 0 && (
+                              <div className="mt-4">
                                 <h5 className="font-semibold text-bronze-900 mb-2">What's Included</h5>
                                 <div className="grid grid-cols-2 gap-1">
-                                  {pkg.included.map((item: string, i: number) => (
+                                  {included.map((item: string, i: number) => (
                                     <div key={i} className="flex items-center gap-1">
                                       <CheckCircle className="w-3 h-3 text-blue-500 flex-shrink-0" />
-                                      <span className="text-xs text-bronze-700">{item}</span>
+                                      <span className="text-xs text-bronze-700">{item.replace(/^\.\s*/, "")}</span>
                                     </div>
                                   ))}
                                 </div>
                               </div>
-
-                              {/* Brief Itinerary */}
-                              <div>
-                                <h5 className="font-semibold text-bronze-900 mb-2">Brief Itinerary</h5>
-                                <div className="space-y-1">
-                                  {pkg.itinerary.map((day: string, i: number) => (
-                                    <div key={i} className="flex items-start gap-2">
-                                      <Plane className="w-3 h-3 text-gold-600 mt-1 flex-shrink-0" />
-                                      <span className="text-xs text-bronze-700">{day}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </motion.div>
-                          )}
-                        </div>
-
-                        {/* Reviews */}
-                        <div className="flex items-center gap-2 mb-4">
-                          <div className="flex items-center gap-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-4 h-4 ${
-                                  i < Math.floor(pkg.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                                }`}
-                              />
-                            ))}
+                            )}
                           </div>
-                          <span className="text-sm text-bronze-600">({pkg.reviews} reviews)</span>
-                        </div>
 
-                        {/* Action Buttons */}
-                        <div className="space-y-3 mt-auto">
-                          <Button
-                            variant="outline"
-                            className="w-full border-gold-500 text-gold-600 hover:bg-gold-500 hover:text-white transition-all duration-300"
-                            onClick={() => toggleExpanded(pkg.id)}
-                          >
-                            {isExpanded(pkg.id) ? "Show Less" : "Read More"}
-                          </Button>
+                          {/* Reviews */}
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="flex items-center gap-1">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-4 h-4 ${
+                                    i < Math.floor(rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm text-bronze-600">({reviews} reviews)</span>
+                          </div>
 
-                          <div className="flex gap-2">
-                            <Link href={`/packages/${pkg.slug || pkg.id}`} className="flex-1">
+                          {/* Action Buttons */}
+                          <div className="space-y-3 mt-auto">
+                            {canExpand && (
                               <Button
                                 variant="outline"
-                                className="w-full border-bronze-300 text-bronze-600 hover:bg-bronze-50 transition-all duration-300"
+                                className="w-full border-gold-500 text-gold-600 hover:bg-gold-500 hover:text-white transition-all duration-300"
+                                onClick={() => toggleExpanded(pkg.id)}
                               >
-                                View Details
+                                {isExpanded(pkg.id) ? "Show Less" : "Read More"}
                               </Button>
-                            </Link>
-                            <Button
-                              className="flex-1 bg-gold-500 hover:bg-gold-600 text-white transition-all duration-300"
-                              onClick={() => handleBookNow(pkg)}
-                            >
-                              Book Now
-                            </Button>
+                            )}
+
+                            <div className="flex gap-2">
+                              <Link href={`/packages/${slug}`} className="flex-1">
+                                <Button
+                                  variant="outline"
+                                  className="w-full border-bronze-300 text-bronze-600 hover:bg-bronze-50 transition-all duration-300"
+                                >
+                                  View Details
+                                </Button>
+                              </Link>
+                              <Button
+                                className="flex-1 bg-gold-500 hover:bg-gold-600 text-white transition-all duration-300"
+                                onClick={() => handleBookNow(pkg)}
+                              >
+                                Book Now
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  )
+                })}
               </div>
 
               {sortedPackages.length === 0 && (
@@ -465,7 +601,7 @@ export default function PackagesPage() {
                 name: selectedPackage.name,
                 price: selectedPackage.price,
                 duration: selectedPackage.duration,
-                image: selectedPackage.image,
+                image: selectedPackage.image || selectedPackage.main_image,
               }}
               itemType="umrah"
               onClose={() => setIsBookingOpen(false)}
