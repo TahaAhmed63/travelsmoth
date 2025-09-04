@@ -29,9 +29,10 @@ interface PreSelectedTour {
 interface TourBookingPopupProps {
   preSelectedTour: PreSelectedTour
   onClose: () => void
+  itemType?: "tour" | "hotel" | "umrah" | "destination"
 }
 
-export default function TourBookingPopup({ preSelectedTour, onClose }: TourBookingPopupProps) {
+export default function TourBookingPopup({ preSelectedTour, onClose, itemType = "tour" }: TourBookingPopupProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState({
     startDate: "",
@@ -69,7 +70,7 @@ export default function TourBookingPopup({ preSelectedTour, onClose }: TourBooki
         customer_name: `${formData.firstName} ${formData.lastName}`.trim(),
         customer_email: formData.email,
         customer_phone: formData.phone,
-        item_type: "tour",
+        item_type: itemType,
         item_id: preSelectedTour.id,
         item_name: preSelectedTour.name,
         start_date: formData.startDate || null,
