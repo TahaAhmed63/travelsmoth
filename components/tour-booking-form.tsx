@@ -74,8 +74,79 @@ export default function TourBookingForm() {
     phone: "",
   })
 
-  const selectedDestination = destinations.find((d) => d.id === formData.destination)
-  const filteredDestinations = destinations.filter((d) => d.type === formData.serviceType)
+  const [items, setItems] = useState<Item[]>([])
+  const [loadingItems, setLoadingItems] = useState(false)
+  const [itemsError, setItemsError] = useState<string | null>(null)
+
+  const selectedDestination = useMemo(() => items.find((d) => d.id === formData.destination || d.slug === formData.destination), [items, formData.destination])
+  const filteredDestinations = useMemo(() => items.filter((d) => d.type === formData.serviceType), [items, formData.serviceType])
+
+  useEffect(() => {
+    if (!formData.serviceType) return
+    setLoadingItems(true)
+    setItemsError(null)
+    setFormData((prev) => ({ ...prev, destination: "" }))
+
+    const url = formData.serviceType === "tours" ? `${BaseUrl}/api/tours` : formData.serviceType === "hotels" ? `${BaseUrl}/api/hotels` : `${BaseUrl}/api/umrah`
+
+    fetch(url)
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load options")
+        return res.json()
+      })
+      .then((raw) => {
+        const arr: any[] = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data?.tours) ? raw.data.tours
+          : Array.isArray(raw?.data?.hotels) ? raw.data.hotels
+          : Array.isArray(raw?.data?.packages) ? raw.data.packages
+          : Array.isArray(raw?.tours) ? raw.tours
+          : Array.isArray(raw?.hotels) ? raw.hotels
+          : Array.isArray(raw?.umrah) ? raw.umrah
+          : []
+
+        const normalized: Item[] = arr.map((it: any): Item => {
+          if (formData.serviceType === "tours") {
+            const image = it.mainImage || it.archiveImages?.[0] || it.image || "/placeholder.svg"
+            const name = it.title || it.name || "Tour"
+            return {
+              id: it.slug || it.id || name,
+              slug: it.slug,
+              name,
+              price: typeof it.price === "number" ? it.price : (typeof it.price === "string" ? Number(it.price.replace(/[^\d.]/g, "")) : 0),
+              duration: it.duration || "",
+              image: typeof image === "string" ? image : "/placeholder.svg",
+              type: "tours",
+            }
+          }
+          if (formData.serviceType === "hotels") {
+            const image = it.mainImage || it.mainimage || it.main_image || it.gallery_images?.[0] || "/placeholder.svg"
+            return {
+              id: it.slug || it.id || it.name,
+              slug: it.slug,
+              name: it.name,
+              price: it.minprice || it.min_price || 0,
+              duration: "per night",
+              image: typeof image === "string" ? image : "/placeholder.svg",
+              type: "hotels",
+            }
+          }
+          const image = it.mainimage || it.main_image || it.image || "/placeholder.svg"
+          return {
+            id: it.slug || it.id || it.name,
+            slug: it.slug,
+            name: it.name || it.title || "Umrah Package",
+            price: it.price || it.min_price || 0,
+            duration: it.duration || "",
+            image: typeof image === "string" ? image : "/placeholder.svg",
+            type: "umrah",
+          }
+        })
+        setItems(normalized)
+      })
+      .catch((e: any) => setItemsError(e?.message || "Failed to load options"))
+      .finally(() => setLoadingItems(false))
+  }, [formData.serviceType])
 
   const nextStep = () => {
     if (currentStep < steps.length) {
