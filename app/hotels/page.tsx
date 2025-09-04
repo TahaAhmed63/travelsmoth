@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Star, MapPin, Search, Filter, Wifi, Car, Utensils, Waves, Dumbbell, Coffee } from "lucide-react"
 import Link from "next/link"
 import TourBookingForm from "@/components/tour-booking-popup"
+import { BaseUrl } from "@/BaseUrl"
 
 const categories = [
   "All",
@@ -87,12 +88,10 @@ function getCategoryDisplay(category: string) {
 }
 
 function getImageUrl(mainImage: string, mainimage: string) {
-  // Prefer mainImage, fallback to mainimage, fallback to placeholder
   const img = mainImage || mainimage
   if (!img) return "/placeholder.svg"
   if (img.startsWith("http")) return img
-  // Assume local upload path
-  return img.startsWith("/") ? img : `/${img}`
+  return img.startsWith("/") ? img : `${BaseUrl}/${img}`
 }
 
 export default function HotelsPage() {
@@ -112,13 +111,20 @@ export default function HotelsPage() {
   useEffect(() => {
     setLoading(true)
     setError(null)
-    fetch("http://localhost:3001/api/hotels")
+    fetch(`${BaseUrl}/api/hotels`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch hotels")
         return res.json()
       })
-      .then((data) => {
-        setHotels(Array.isArray(data) ? data : [])
+      .then((raw) => {
+        const arr = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data?.hotels)
+          ? raw.data.hotels
+          : Array.isArray(raw?.hotels)
+          ? raw.hotels
+          : []
+        setHotels(arr)
         setLoading(false)
       })
       .catch((err) => {
