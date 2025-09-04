@@ -110,7 +110,7 @@ export default function TourBookingForm() {
             const image = it.mainImage || it.archiveImages?.[0] || it.image || "/placeholder.svg"
             const name = it.title || it.name || "Tour"
             return {
-              id: it.slug || it.id || name,
+              id: it.id,
               slug: it.slug,
               name,
               price: typeof it.price === "number" ? it.price : (typeof it.price === "string" ? Number(it.price.replace(/[^\d.]/g, "")) : 0),
