@@ -569,6 +569,7 @@ export default function TourDetailPage() {
                           duration: tourData.duration,
                           image: tourData.gallery?.[0],
                         }}
+                        itemType="tour"
                         onClose={() => setIsBookingOpen(false)}
                       />
                     </DialogContent>
