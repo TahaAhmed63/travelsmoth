@@ -30,6 +30,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import TourBookingForm from "@/components/tour-booking-popup"
+import { BaseUrl } from "@/BaseUrl"
 
 const amenityIcons: Record<string, any> = {
   "WiFi": Wifi,
@@ -91,7 +92,7 @@ export default function HotelDetailPage() {
   const allImages = [
     hotel?.mainimage || hotel?.mainImage || "/placeholder.svg",
     ...galleryImages,
-  ].filter(Boolean)
+  ].filter(Boolean).map((img: string) => (img.startsWith('http') ? img : img.startsWith('/') ? img : `${BaseUrl}/${img}`))
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % (allImages.length || 1))
