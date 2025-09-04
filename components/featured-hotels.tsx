@@ -164,9 +164,11 @@ export default function FeaturedHotels() {
                   <div className="relative overflow-hidden">
                     <img
                       src={
-                        getHotelImage(hotel).startsWith("/")
+                        getHotelImage(hotel).startsWith("http")
                           ? getHotelImage(hotel)
-                          : `${BaseUrl}${getHotelImage(hotel)}`
+                          : getHotelImage(hotel).startsWith("/")
+                          ? getHotelImage(hotel)
+                          : `${BaseUrl}/${getHotelImage(hotel)}`
                       }
                       alt={hotel.name}
                       className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700"
