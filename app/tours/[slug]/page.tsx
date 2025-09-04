@@ -472,9 +472,7 @@ export default function TourDetailPage() {
                           onClick={() => setCurrentImageIndex(index)}
                         >
                           <img
-                            src={typeof image === 'string' && image.startsWith('http')
-                              ? image
-                              : (image ? `${BaseUrl}/${image}` : "/placeholder.svg")}
+                            src={typeof image === 'string' ? image : "/placeholder.svg"}
                             alt={`Gallery ${index + 1} - ${destination.name}`}
                             className="w-full h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
                           />
