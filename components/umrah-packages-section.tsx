@@ -366,7 +366,7 @@ export default function UmrahPackagesSection() {
                   {/* Image Section */}
                   <div className="relative h-56 sm:h-72 md:h-96 lg:h-auto overflow-hidden min-h-[220px]">
                     <img
-                      src={`${BaseUrl}${getPackageImage(currentPackage)}`}
+                      src={`${getPackageImage(currentPackage)}`}
                       alt={currentPackage.name}
                       className="w-full h-full object-cover"
                     />
