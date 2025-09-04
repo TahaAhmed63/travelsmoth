@@ -303,22 +303,33 @@ export default function MainBookingForm() {
                     className="space-y-4"
                   >
                     <div>
-                      <Label className="text-base font-semibold mb-4 block">Select your {formData.serviceType === "tours" ? "tour" : formData.serviceType === "hotels" ? "hotel" : "umrah package"}:</Label>
+                      <Label className="text-base font-semibold mb-2 block">Select your {formData.serviceType === "tours" ? "tour" : formData.serviceType === "hotels" ? "hotel" : "umrah package"}:</Label>
+                      <div className="mb-3">
+                        <Select value={formData.destination} onValueChange={(v) => updateFormData("destination", v)}>
+                          <SelectTrigger className="w-full"><SelectValue placeholder={loadingItems ? "Loading..." : "Select option"} /></SelectTrigger>
+                          <SelectContent>
+                            {filteredDestinations.map((d) => (
+                              <SelectItem key={d.id} value={d.slug || d.id}>{d.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {itemsError && <div className="text-sm text-red-600 mt-2">{itemsError}</div>}
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {filteredDestinations.map((dest) => (
                           <button
                             key={dest.id}
                             type="button"
-                            onClick={() => updateFormData("destination", dest.id)}
+                            onClick={() => updateFormData("destination", dest.slug || dest.id)}
                             className={`flex flex-col items-center border-2 rounded-lg p-3 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-gold-400 ${
-                              formData.destination === dest.id
+                              formData.destination === (dest.slug || dest.id)
                                 ? "bg-gold-100 border-gold-500 scale-105 shadow-lg"
                                 : "bg-white border-bronze-200 hover:border-gold-400"
                             }`}
                           >
                             <img src={dest.image} alt={dest.name} className="w-full h-24 object-cover rounded mb-2" />
                             <span className="font-bold text-base mb-1">{dest.name}</span>
-                            <span className="text-xs text-center">{dest.duration} &bull; ${dest.price}</span>
+                            <span className="text-xs text-center">{dest.duration}{dest.price ? ` • $${dest.price}` : ""}</span>
                           </button>
                         ))}
                       </div>
