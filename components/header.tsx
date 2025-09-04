@@ -10,6 +10,7 @@ import Image from "next/image"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import TourBookingForm from "@/components/tour-booking-form"
 import MainBookingForm from "@/components/main-booking-form"
+import { BaseUrl } from "@/BaseUrl"
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -22,41 +23,14 @@ const navigation = [
   { name: "Contact", href: "/contact" },
 ]
 
-const tourCategories = [
-  {
-    name: "Adventure Tours",
-    items: [
-      { name: "Hiking & Trekking", href: "/tours/hiking" },
-      { name: "Safari Tours", href: "/tours/safari" },
-      { name: "Water Sports", href: "/tours/water-sports" },
-      { name: "Mountain Climbing", href: "/tours/mountain-climbing" },
-    ],
-  },
-  {
-    name: "Cultural Tours",
-    items: [
-      { name: "Historical Sites", href: "/tours/historical" },
-      { name: "Local Experiences", href: "/tours/local" },
-      { name: "Food & Wine", href: "/tours/food-wine" },
-      { name: "Festivals & Events", href: "/tours/festivals" },
-    ],
-  },
-  {
-    name: "Luxury Tours",
-    items: [
-      { name: "Private Tours", href: "/tours/private" },
-      { name: "VIP Experiences", href: "/tours/vip" },
-      { name: "Luxury Cruises", href: "/tours/cruises" },
-      { name: "Exclusive Resorts", href: "/tours/resorts" },
-    ],
-  },
+type MenuCategory = { name: string; items: { name: string; href: string }[] }
+const defaultTourCategories: MenuCategory[] = [
+  { name: "Popular", items: [] },
+  { name: "Themes", items: [] },
+  { name: "Experiences", items: [] },
 ]
 
-const featuredDestinations = [
-  { name: "Bali, Indonesia", href: "/destinations/bali", image: "/destinations/bali.jpg" },
-  { name: "Santorini, Greece", href: "/destinations/santorini", image: "/destinations/santorini.jpg" },
-  { name: "Kyoto, Japan", href: "/destinations/kyoto", image: "/destinations/kyoto.jpg" },
-]
+const defaultFeaturedDestinations: { name: string; href: string; image: string }[] = []
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
@@ -67,6 +41,8 @@ export default function Header() {
   const pathname = usePathname()
   const navRef = useRef<HTMLDivElement>(null)
   const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined)
+  const [tourCategories, setTourCategories] = useState<MenuCategory[]>(defaultTourCategories)
+  const [featuredDestinations, setFeaturedDestinations] = useState<{ name: string; href: string; image: string }[]>(defaultFeaturedDestinations)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -86,6 +62,54 @@ export default function Header() {
     updateMenuWidth()
     window.addEventListener('resize', updateMenuWidth)
     return () => window.removeEventListener('resize', updateMenuWidth)
+  }, [])
+
+  useEffect(() => {
+    async function loadMenu() {
+      try {
+        const [toursRes, destRes] = await Promise.all([
+          fetch(`${BaseUrl}/api/tours`),
+          fetch(`${BaseUrl}/api/destinations`),
+        ])
+        const toursRaw = await toursRes.json()
+        const destRaw = await destRes.json()
+        const tours: any[] = Array.isArray(toursRaw)
+          ? toursRaw
+          : Array.isArray(toursRaw?.data?.tours)
+          ? toursRaw.data.tours
+          : Array.isArray(toursRaw?.tours)
+          ? toursRaw.tours
+          : []
+        const destinations: any[] = Array.isArray(destRaw)
+          ? destRaw
+          : Array.isArray(destRaw?.data?.destinations)
+          ? destRaw.data.destinations
+          : Array.isArray(destRaw?.destinations)
+          ? destRaw.destinations
+          : []
+
+        const byCategory: Record<string, number> = {}
+        tours.forEach((t) => {
+          const c = (t.category || "Popular").toString()
+          byCategory[c] = (byCategory[c] || 0) + 1
+        })
+        const topCats = Object.keys(byCategory).sort((a,b)=>byCategory[b]-byCategory[a]).slice(0,3)
+        const builtCats: MenuCategory[] = topCats.map((c) => ({
+          name: c,
+          items: tours.filter((t)=>t.category===c).slice(0,4).map((t)=>({ name: t.title || t.name || "Tour", href: t.slug ? `/tours/${t.slug}` : "/tours" }))
+        }))
+        setTourCategories(builtCats.length ? builtCats : defaultTourCategories)
+
+        setFeaturedDestinations(
+          destinations.slice(0,3).map((d)=>({
+            name: d.name,
+            href: d.slug ? `/destinations/${d.slug}` : "/destinations",
+            image: typeof d.image_url === 'string' && d.image_url ? d.image_url : "/placeholder.svg",
+          }))
+        )
+      } catch {}
+    }
+    loadMenu()
   }, [])
 
   return (

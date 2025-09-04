@@ -163,11 +163,7 @@ export default function FeaturedHotels() {
                 <Card className="overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-white">
                   <div className="relative overflow-hidden">
                     <img
-                      src={
-                        getHotelImage(hotel).startsWith("/")
-                          ? getHotelImage(hotel)
-                          : `${BaseUrl}${getHotelImage(hotel)}`
-                      }
+                      src={getHotelImage(hotel)}
                       alt={hotel.name}
                       className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700"
                     />
@@ -195,12 +191,12 @@ export default function FeaturedHotels() {
                             {hotel.currency?.toLowerCase() === "usd" || hotel.currency?.toLowerCase() === "dollar"
                               ? "$"
                               : hotel.currency?.toLowerCase() === "jpy"
-                              ? "¥"
-                              : hotel.currency?.toLowerCase() === "eur"
-                              ? "€"
-                              : hotel.currency?.toLowerCase() === "gbp"
-                              ? "£"
-                              : ""}
+                                ? "¥"
+                                : hotel.currency?.toLowerCase() === "eur"
+                                  ? "€"
+                                  : hotel.currency?.toLowerCase() === "gbp"
+                                    ? "£"
+                                    : ""}
                             {hotel.min_price}
                           </span>
                           {hotel.max_price && hotel.max_price > hotel.min_price && (
@@ -208,12 +204,12 @@ export default function FeaturedHotels() {
                               {hotel.currency?.toLowerCase() === "usd" || hotel.currency?.toLowerCase() === "dollar"
                                 ? "$"
                                 : hotel.currency?.toLowerCase() === "jpy"
-                                ? "¥"
-                                : hotel.currency?.toLowerCase() === "eur"
-                                ? "€"
-                                : hotel.currency?.toLowerCase() === "gbp"
-                                ? "£"
-                                : ""}
+                                  ? "¥"
+                                  : hotel.currency?.toLowerCase() === "eur"
+                                    ? "€"
+                                    : hotel.currency?.toLowerCase() === "gbp"
+                                      ? "£"
+                                      : ""}
                               {hotel.max_price}
                             </span>
                           )}
@@ -244,9 +240,8 @@ export default function FeaturedHotels() {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-4 h-4 ${
-                              i < Math.round(hotel.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                            }`}
+                            className={`w-4 h-4 ${i < Math.round(hotel.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                              }`}
                           />
                         ))}
                       </div>
@@ -268,7 +263,7 @@ export default function FeaturedHotels() {
                     </div>
 
                     <div className="flex gap-3">
-                      <Link href={`/hotels/${hotel.id}`} className="flex-1">
+                      <Link href={`/hotels/${(hotel as any).slug || hotel.id}`} className="flex-1">
                         <Button
                           variant="outline"
                           className="w-full border-gold-500 text-gold-600 hover:bg-gold-500 hover:text-white transition-all duration-300"
@@ -276,7 +271,7 @@ export default function FeaturedHotels() {
                           View Details
                         </Button>
                       </Link>
-                      <Button 
+                      <Button
                         onClick={() => handleBookNow(hotel)}
                         className="bg-gold-500 hover:bg-gold-600 text-white px-6 transition-all duration-300"
                       >
@@ -314,6 +309,7 @@ export default function FeaturedHotels() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <TourBookingPopup
             preSelectedTour={selectedHotel}
+            itemType="hotel"
             onClose={() => {
               setIsPopupOpen(false)
               setSelectedHotel(null)

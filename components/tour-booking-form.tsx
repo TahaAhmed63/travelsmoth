@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Users, ArrowRight, ArrowLeft, Check, Plane, Hotel, Package } from "lucide-react"
+import { BaseUrl } from "@/BaseUrl"
 
 const steps = [
   { id: 1, title: "Service Type", icon: Package },
@@ -43,80 +44,17 @@ const serviceTypes = [
   },
 ]
 
-const destinations = [
-  {
-    id: "bali",
-    name: "Bali, Indonesia",
-    price: 1299,
-    duration: "7 days",
-    image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?w=300&h=200&fit=crop",
-    type: "tours",
-  },
-  {
-    id: "europe",
-    name: "European Grand Tour",
-    price: 2899,
-    duration: "14 days",
-    image: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=300&h=200&fit=crop",
-    type: "tours",
-  },
-  {
-    id: "maldives-resort",
-    name: "Maldives Luxury Resort",
-    price: 899,
-    duration: "per night",
-    image: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=300&h=200&fit=crop",
-    type: "hotels",
-  },
-  {
-    id: "dubai-hotel",
-    name: "Dubai Premium Hotel",
-    price: 450,
-    duration: "per night",
-    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&h=200&fit=crop",
-    type: "hotels",
-  },
-  {
-    id: "honeymoon-package",
-    name: "Romantic Honeymoon Package",
-    price: 3999,
-    duration: "10 days",
-    image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=300&h=200&fit=crop",
-    type: "packages",
-  },
-  {
-    id: "family-package",
-    name: "Family Adventure Package",
-    price: 4599,
-    duration: "12 days",
-    image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=300&h=200&fit=crop",
-    type: "packages",
-  },
-  {
-    id: "umrah-economy",
-    name: "Economy Umrah Package",
-    price: 1899,
-    duration: "14 days",
-    image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=300&h=200&fit=crop",
-    type: "umrah",
-  },
-  {
-    id: "umrah-premium",
-    name: "Premium Umrah Package",
-    price: 2899,
-    duration: "14 days",
-    image: "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=300&h=200&fit=crop",
-    type: "umrah",
-  },
-  {
-    id: "umrah-executive",
-    name: "Executive Umrah Package",
-    price: 4299,
-    duration: "14 days",
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop",
-    type: "umrah",
-  },
-]
+type ItemType = "tours" | "hotels" | "umrah"
+
+type Item = {
+  id: string
+  slug?: string
+  name: string
+  price: number
+  duration: string
+  image: string
+  type: ItemType
+}
 
 export default function TourBookingForm() {
   const [currentStep, setCurrentStep] = useState(1)
@@ -136,8 +74,79 @@ export default function TourBookingForm() {
     phone: "",
   })
 
-  const selectedDestination = destinations.find((d) => d.id === formData.destination)
-  const filteredDestinations = destinations.filter((d) => d.type === formData.serviceType)
+  const [items, setItems] = useState<Item[]>([])
+  const [loadingItems, setLoadingItems] = useState(false)
+  const [itemsError, setItemsError] = useState<string | null>(null)
+
+  const selectedDestination = useMemo(() => items.find((d) => d.id === formData.destination || d.slug === formData.destination), [items, formData.destination])
+  const filteredDestinations = useMemo(() => items.filter((d) => d.type === formData.serviceType), [items, formData.serviceType])
+
+  useEffect(() => {
+    if (!formData.serviceType) return
+    setLoadingItems(true)
+    setItemsError(null)
+    setFormData((prev) => ({ ...prev, destination: "" }))
+
+    const url = formData.serviceType === "tours" ? `${BaseUrl}/api/tours` : formData.serviceType === "hotels" ? `${BaseUrl}/api/hotels` : `${BaseUrl}/api/umrah`
+
+    fetch(url)
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load options")
+        return res.json()
+      })
+      .then((raw) => {
+        const arr: any[] = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data?.tours) ? raw.data.tours
+          : Array.isArray(raw?.data?.hotels) ? raw.data.hotels
+          : Array.isArray(raw?.data?.packages) ? raw.data.packages
+          : Array.isArray(raw?.tours) ? raw.tours
+          : Array.isArray(raw?.hotels) ? raw.hotels
+          : Array.isArray(raw?.umrah) ? raw.umrah
+          : []
+
+        const normalized: Item[] = arr.map((it: any): Item => {
+          if (formData.serviceType === "tours") {
+            const image = it.mainImage || it.archiveImages?.[0] || it.image || "/placeholder.svg"
+            const name = it.title || it.name || "Tour"
+            return {
+              id: it.slug || it.id || name,
+              slug: it.slug,
+              name,
+              price: typeof it.price === "number" ? it.price : (typeof it.price === "string" ? Number(it.price.replace(/[^\d.]/g, "")) : 0),
+              duration: it.duration || "",
+              image: typeof image === "string" ? image : "/placeholder.svg",
+              type: "tours",
+            }
+          }
+          if (formData.serviceType === "hotels") {
+            const image = it.mainImage || it.mainimage || it.main_image || it.gallery_images?.[0] || "/placeholder.svg"
+            return {
+              id: it.slug || it.id || it.name,
+              slug: it.slug,
+              name: it.name,
+              price: it.minprice || it.min_price || 0,
+              duration: "per night",
+              image: typeof image === "string" ? image : "/placeholder.svg",
+              type: "hotels",
+            }
+          }
+          const image = it.mainimage || it.main_image || it.image || "/placeholder.svg"
+          return {
+            id: it.slug || it.id || it.name,
+            slug: it.slug,
+            name: it.name || it.title || "Umrah Package",
+            price: it.price || it.min_price || 0,
+            duration: it.duration || "",
+            image: typeof image === "string" ? image : "/placeholder.svg",
+            type: "umrah",
+          }
+        })
+        setItems(normalized)
+      })
+      .catch((e: any) => setItemsError(e?.message || "Failed to load options"))
+      .finally(() => setLoadingItems(false))
+  }, [formData.serviceType])
 
   const nextStep = () => {
     if (currentStep < steps.length) {
@@ -155,17 +164,47 @@ export default function TourBookingForm() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = () => {
-    alert("Booking request submitted! We'll contact you within 24 hours.")
+  const handleSubmit = async () => {
+    try {
+      const selected = items.find((d) => d.id === formData.destination || d.slug === formData.destination)
+      const itemType = formData.serviceType === "tours" ? "tour" : formData.serviceType === "hotels" ? "hotel" : "umrah"
+      const payload: any = {
+        customer_name: `${formData.firstName} ${formData.lastName}`.trim(),
+        customer_email: formData.email,
+        customer_phone: formData.phone,
+        item_type: itemType,
+        item_id: selected?.id || null,
+        item_name: selected?.name || null,
+        start_date: formData.startDate || null,
+        end_date: formData.endDate || null,
+        total_price: calculateTotal(),
+        currency: "USD",
+        number_of_guests: formData.adults + formData.children,
+        adults: formData.adults,
+        children: formData.children,
+        accommodation_preference: formData.accommodation || null,
+        selected_package: selected?.id || null,
+      }
+      const { BaseUrl } = await import("@/BaseUrl")
+      const res = await fetch(`${BaseUrl}/api/bookings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) throw new Error("Failed to submit booking")
+      alert("Booking submitted! Our team will contact you shortly.")
+    } catch (e: any) {
+      alert(e?.message || "Failed to submit booking")
+    }
   }
 
   const calculateTotal = () => {
     if (!selectedDestination) return 0
-    const basePrice = selectedDestination.price
+    const basePrice = selectedDestination.price || 0
     if (formData.serviceType === "hotels") {
-      return basePrice * formData.rooms * 7 // Assuming 7 nights
+      return basePrice * Math.max(1, formData.rooms) * 7
     }
-    return basePrice * (formData.adults + formData.children * 0.7)
+    return basePrice * Math.max(1, (formData.adults + formData.children * 0.7))
   }
 
   const getCurrentStepIcon = () => {
@@ -290,15 +329,28 @@ export default function TourBookingForm() {
                             ? "Hotel"
                             : "Package"}
                       </Label>
+                      <div className="mb-4">
+                        <Select value={formData.destination} onValueChange={(v) => updateFormData("destination", v)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder={loadingItems ? "Loading..." : "Select option"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {filteredDestinations.map((d) => (
+                              <SelectItem key={d.id} value={d.slug || d.id}>{d.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {itemsError && <div className="text-sm text-red-600 mt-2">{itemsError}</div>}
+                      </div>
                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {filteredDestinations.map((destination) => (
                           <motion.div
                             key={destination.id}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={() => updateFormData("destination", destination.id)}
+                            onClick={() => updateFormData("destination", destination.slug || destination.id)}
                             className={`cursor-pointer rounded-lg border-2 transition-all duration-300 ${
-                              formData.destination === destination.id
+                              formData.destination === (destination.slug || destination.id)
                                 ? "border-gold-500 bg-gold-50"
                                 : "border-bronze-200 hover:border-gold-300"
                             }`}
@@ -311,7 +363,9 @@ export default function TourBookingForm() {
                             <div className="p-4">
                               <h3 className="font-semibold text-bronze-900">{destination.name}</h3>
                               <div className="flex items-center justify-between mt-2">
-                                <span className="text-gold-600 font-bold">${destination.price}</span>
+                                {destination.price ? (
+                                  <span className="text-gold-600 font-bold">${destination.price}</span>
+                                ) : <span />}
                                 <Badge variant="secondary" className="bg-bronze-100 text-bronze-700">
                                   {destination.duration}
                                 </Badge>

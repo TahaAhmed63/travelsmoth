@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Users, ArrowRight, ArrowLeft, Check, Plane, Hotel, Package } from "lucide-react"
+import { BaseUrl } from "@/BaseUrl"
 
 const steps = [
   { id: 1, title: "Service Type", icon: Package },
@@ -43,80 +44,17 @@ const serviceTypes = [
   },
 ]
 
-const destinations = [
-  {
-    id: "bali",
-    name: "Bali, Indonesia",
-    price: 1299,
-    duration: "7 days",
-    image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?w=300&h=200&fit=crop",
-    type: "tours",
-  },
-  {
-    id: "europe",
-    name: "European Grand Tour",
-    price: 2899,
-    duration: "14 days",
-    image: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=300&h=200&fit=crop",
-    type: "tours",
-  },
-  {
-    id: "maldives-resort",
-    name: "Maldives Luxury Resort",
-    price: 899,
-    duration: "per night",
-    image: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=300&h=200&fit=crop",
-    type: "hotels",
-  },
-  {
-    id: "dubai-hotel",
-    name: "Dubai Premium Hotel",
-    price: 450,
-    duration: "per night",
-    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&h=200&fit=crop",
-    type: "hotels",
-  },
-  {
-    id: "honeymoon-package",
-    name: "Romantic Honeymoon Package",
-    price: 3999,
-    duration: "10 days",
-    image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=300&h=200&fit=crop",
-    type: "packages",
-  },
-  {
-    id: "family-package",
-    name: "Family Adventure Package",
-    price: 4599,
-    duration: "12 days",
-    image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=300&h=200&fit=crop",
-    type: "packages",
-  },
-  {
-    id: "umrah-economy",
-    name: "Economy Umrah Package",
-    price: 1899,
-    duration: "14 days",
-    image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=300&h=200&fit=crop",
-    type: "umrah",
-  },
-  {
-    id: "umrah-premium",
-    name: "Premium Umrah Package",
-    price: 2899,
-    duration: "14 days",
-    image: "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=300&h=200&fit=crop",
-    type: "umrah",
-  },
-  {
-    id: "umrah-executive",
-    name: "Executive Umrah Package",
-    price: 4299,
-    duration: "14 days",
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop",
-    type: "umrah",
-  },
-]
+type ItemType = "tours" | "hotels" | "umrah"
+
+type Item = {
+  id: string
+  slug?: string
+  name: string
+  price: number
+  duration: string
+  image: string
+  type: ItemType
+}
 
 export default function MainBookingForm() {
   const [currentStep, setCurrentStep] = useState(1)
@@ -136,8 +74,86 @@ export default function MainBookingForm() {
     phone: "",
   })
 
-  const selectedDestination = destinations.find((d) => d.id === formData.destination)
-  const filteredDestinations = destinations.filter((d) => d.type === formData.serviceType)
+  const [items, setItems] = useState<Item[]>([])
+  const [loadingItems, setLoadingItems] = useState(false)
+  const [itemsError, setItemsError] = useState<string | null>(null)
+
+  const selectedDestination = useMemo(() => items.find((d) => d.id === formData.destination || d.slug === formData.destination), [items, formData.destination])
+  const filteredDestinations = useMemo(() => items.filter((d) => d.type === formData.serviceType), [items, formData.serviceType])
+
+  useEffect(() => {
+    if (!formData.serviceType) return
+    setLoadingItems(true)
+    setItemsError(null)
+
+    const url = formData.serviceType === "tours" ? `${BaseUrl}/api/tours` : formData.serviceType === "hotels" ? `${BaseUrl}/api/hotels` : `${BaseUrl}/api/umrah`
+
+    fetch(url)
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load options")
+        return res.json()
+      })
+      .then((raw) => {
+        const arr: any[] = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data?.tours)
+          ? raw.data.tours
+          : Array.isArray(raw?.data?.hotels)
+          ? raw.data.hotels
+          : Array.isArray(raw?.data?.packages)
+          ? raw.data.packages
+          : Array.isArray(raw?.tours)
+          ? raw.tours
+          : Array.isArray(raw?.hotels)
+          ? raw.hotels
+          : Array.isArray(raw?.packages)
+          ? raw.packages
+          : Array.isArray(raw?.umrah)
+          ? raw.umrah
+          : []
+
+        const normalized: Item[] = arr.map((it: any): Item => {
+          if (formData.serviceType === "tours") {
+            const image = it.mainImage || it.archiveImages?.[0] || it.image || "/placeholder.svg"
+            const name = it.title || it.name || "Tour"
+            return {
+              id: it.slug || it.id || name,
+              slug: it.slug,
+              name,
+              price: typeof it.price === "number" ? it.price : (typeof it.price === "string" ? Number(it.price.replace(/[^\d.]/g, "")) : 0),
+              duration: it.duration || "",
+              image: typeof image === "string" ? image : "/placeholder.svg",
+              type: "tours",
+            }
+          }
+          if (formData.serviceType === "hotels") {
+            const image = it.mainImage || it.mainimage || it.main_image || it.gallery_images?.[0] || "/placeholder.svg"
+            return {
+              id: it.slug || it.id || it.name,
+              slug: it.slug,
+              name: it.name,
+              price: it.minprice || it.min_price || 0,
+              duration: "per night",
+              image: typeof image === "string" ? image : "/placeholder.svg",
+              type: "hotels",
+            }
+          }
+          const image = it.mainimage || it.main_image || it.image || "/placeholder.svg"
+          return {
+            id: it.slug || it.id || it.name,
+            slug: it.slug,
+            name: it.name || it.title || "Umrah Package",
+            price: it.price || it.min_price || 0,
+            duration: it.duration || "",
+            image: typeof image === "string" ? image : "/placeholder.svg",
+            type: "umrah",
+          }
+        })
+        setItems(normalized)
+      })
+      .catch((e: any) => setItemsError(e?.message || "Failed to load options"))
+      .finally(() => setLoadingItems(false))
+  }, [formData.serviceType])
 
   const nextStep = () => {
     if (currentStep < steps.length) {
@@ -161,11 +177,11 @@ export default function MainBookingForm() {
 
   const calculateTotal = () => {
     if (!selectedDestination) return 0
-    const basePrice = selectedDestination.price
+    const basePrice = selectedDestination.price || 0
     if (formData.serviceType === "hotels") {
-      return basePrice * formData.rooms * 7 // Assuming 7 nights
+      return basePrice * Math.max(1, formData.rooms) * 7
     }
-    return basePrice * (formData.adults + formData.children * 0.7)
+    return basePrice * Math.max(1, (formData.adults + formData.children * 0.7))
   }
 
   const getCurrentStepIcon = () => {
@@ -287,22 +303,33 @@ export default function MainBookingForm() {
                     className="space-y-4"
                   >
                     <div>
-                      <Label className="text-base font-semibold mb-4 block">Select your {formData.serviceType === "tours" ? "tour" : formData.serviceType === "hotels" ? "hotel" : "umrah package"}:</Label>
+                      <Label className="text-base font-semibold mb-2 block">Select your {formData.serviceType === "tours" ? "tour" : formData.serviceType === "hotels" ? "hotel" : "umrah package"}:</Label>
+                      <div className="mb-3">
+                        <Select value={formData.destination} onValueChange={(v) => updateFormData("destination", v)}>
+                          <SelectTrigger className="w-full"><SelectValue placeholder={loadingItems ? "Loading..." : "Select option"} /></SelectTrigger>
+                          <SelectContent>
+                            {filteredDestinations.map((d) => (
+                              <SelectItem key={d.id} value={d.slug || d.id}>{d.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {itemsError && <div className="text-sm text-red-600 mt-2">{itemsError}</div>}
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {filteredDestinations.map((dest) => (
                           <button
                             key={dest.id}
                             type="button"
-                            onClick={() => updateFormData("destination", dest.id)}
+                            onClick={() => updateFormData("destination", dest.slug || dest.id)}
                             className={`flex flex-col items-center border-2 rounded-lg p-3 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-gold-400 ${
-                              formData.destination === dest.id
+                              formData.destination === (dest.slug || dest.id)
                                 ? "bg-gold-100 border-gold-500 scale-105 shadow-lg"
                                 : "bg-white border-bronze-200 hover:border-gold-400"
                             }`}
                           >
                             <img src={dest.image} alt={dest.name} className="w-full h-24 object-cover rounded mb-2" />
                             <span className="font-bold text-base mb-1">{dest.name}</span>
-                            <span className="text-xs text-center">{dest.duration} &bull; ${dest.price}</span>
+                            <span className="text-xs text-center">{dest.duration}{dest.price ? ` • $${dest.price}` : ""}</span>
                           </button>
                         ))}
                       </div>
@@ -536,4 +563,4 @@ export default function MainBookingForm() {
       </div>
     </section>
   )
-} 
+}

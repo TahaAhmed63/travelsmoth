@@ -258,15 +258,14 @@ export default function UmrahPackagesSection() {
             {/* Mobile: 2 rows, Desktop: 1 row */}
             <div className="block md:hidden w-full">
               <div className="flex gap-1 sm:gap-2 w-full mb-2">
-                {Object.entries(categoryConfig).slice(0,2).map(([key, config]) => (
+                {Object.entries(categoryConfig).slice(0, 2).map(([key, config]) => (
                   <button
                     key={key}
                     onClick={() => handleTabChange(key)}
-                    className={`flex-1 min-w-[6rem] md:min-w-[10rem] text-xs px-2 py-2 rounded-xl font-semibold transition-all duration-300 ${
-                      activeTab === key
+                    className={`flex-1 min-w-[6rem] md:min-w-[10rem] text-xs px-2 py-2 rounded-xl font-semibold transition-all duration-300 ${activeTab === key
                         ? `bg-gradient-to-r ${config.color} text-white shadow-lg transform scale-105`
                         : "text-bronze-600 hover:text-bronze-900 hover:bg-bronze-50"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-center gap-1">
                       <span className="capitalize">{config.label}</span>
@@ -274,9 +273,8 @@ export default function UmrahPackagesSection() {
                         {[...Array(config.stars)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-3 h-3 ${
-                              activeTab === key ? "fill-yellow-300 text-yellow-300" : "fill-gold-400 text-gold-400"
-                            }`}
+                            className={`w-3 h-3 ${activeTab === key ? "fill-yellow-300 text-yellow-300" : "fill-gold-400 text-gold-400"
+                              }`}
                           />
                         ))}
                       </div>
@@ -285,15 +283,14 @@ export default function UmrahPackagesSection() {
                 ))}
               </div>
               <div className="flex justify-center w-full">
-                {Object.entries(categoryConfig).slice(2,3).map(([key, config]) => (
+                {Object.entries(categoryConfig).slice(2, 3).map(([key, config]) => (
                   <button
                     key={key}
                     onClick={() => handleTabChange(key)}
-                    className={`min-w-[6rem] text-xs px-2 py-2 rounded-xl font-semibold transition-all duration-300 ${
-                      activeTab === key
+                    className={`min-w-[6rem] text-xs px-2 py-2 rounded-xl font-semibold transition-all duration-300 ${activeTab === key
                         ? `bg-gradient-to-r ${config.color} text-white shadow-lg transform scale-105`
                         : "text-bronze-600 hover:text-bronze-900 hover:bg-bronze-50"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-center gap-1">
                       <span className="capitalize">{config.label}</span>
@@ -301,9 +298,8 @@ export default function UmrahPackagesSection() {
                         {[...Array(config.stars)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-3 h-3 ${
-                              activeTab === key ? "fill-yellow-300 text-yellow-300" : "fill-gold-400 text-gold-400"
-                            }`}
+                            className={`w-3 h-3 ${activeTab === key ? "fill-yellow-300 text-yellow-300" : "fill-gold-400 text-gold-400"
+                              }`}
                           />
                         ))}
                       </div>
@@ -318,11 +314,10 @@ export default function UmrahPackagesSection() {
                 <button
                   key={key}
                   onClick={() => handleTabChange(key)}
-                  className={`px-6 py-3 rounded-[1.2rem] font-semibold text-lg transition-all duration-300 flex items-center ${
-                    activeTab === key
+                  className={`px-6 py-3 rounded-[1.2rem] font-semibold text-lg transition-all duration-300 flex items-center ${activeTab === key
                       ? `bg-gradient-to-r ${config.color} text-white shadow-lg`
                       : "bg-transparent text-bronze-700"
-                  }`}
+                    }`}
                   style={{ marginRight: key !== Object.keys(categoryConfig)[Object.keys(categoryConfig).length - 1] ? '0.5rem' : 0 }}
                 >
                   <span className="capitalize mr-2">{config.label}</span>
@@ -330,11 +325,10 @@ export default function UmrahPackagesSection() {
                     {[...Array(config.stars)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-5 h-5 ${
-                          activeTab === key
+                        className={`w-5 h-5 ${activeTab === key
                             ? "fill-yellow-300 text-yellow-300"
                             : "fill-gold-400 text-gold-400"
-                        }`}
+                          }`}
                       />
                     ))}
                   </span>
@@ -372,7 +366,7 @@ export default function UmrahPackagesSection() {
                   {/* Image Section */}
                   <div className="relative h-56 sm:h-72 md:h-96 lg:h-auto overflow-hidden min-h-[220px]">
                     <img
-                      src={`${BaseUrl}${getPackageImage(currentPackage)}`}
+                      src={`${getPackageImage(currentPackage)}`}
                       alt={currentPackage.name}
                       className="w-full h-full object-cover"
                     />
@@ -507,11 +501,10 @@ export default function UmrahPackagesSection() {
                           <button
                             key={index}
                             onClick={() => setCurrentPackageIndex(index)}
-                            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
-                              index === currentPackageIndex
+                            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${index === currentPackageIndex
                                 ? `bg-gradient-to-r ${config.color}`
                                 : "bg-bronze-300 hover:bg-bronze-400"
-                            }`}
+                              }`}
                           />
                         ))}
                       </div>
@@ -563,12 +556,12 @@ export default function UmrahPackagesSection() {
               preSelectedTour={{
                 id: selectedPackage.id,
                 name: selectedPackage.name,
-                price: getPriceString(selectedPackage),
+                price: getPriceString(selectedPackage) as unknown as number,
                 duration: getDurationString(selectedPackage),
                 image: getPackageImage(selectedPackage),
               }}
+              itemType="umrah"
               onClose={() => setIsBookingOpen(false)}
-              isUmrah={true}
             />
           )}
         </DialogContent>

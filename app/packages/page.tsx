@@ -245,7 +245,7 @@ export default function PackagesPage() {
                     <Card className="overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
                       <div className="relative overflow-hidden">
                         <img
-                          src={`${BaseUrl}/${pkg.mainimage}` || "/placeholder.svg"}
+                          src={typeof pkg.mainimage === 'string' ? pkg.mainimage : "/placeholder.svg"}
                           alt={pkg.name}
                           className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                         />
@@ -416,7 +416,7 @@ export default function PackagesPage() {
                           </Button>
 
                           <div className="flex gap-2">
-                            <Link href={`/packages/${pkg.id}`} className="flex-1">
+                            <Link href={`/packages/${pkg.slug || pkg.id}`} className="flex-1">
                               <Button
                                 variant="outline"
                                 className="w-full border-bronze-300 text-bronze-600 hover:bg-bronze-50 transition-all duration-300"
@@ -467,8 +467,8 @@ export default function PackagesPage() {
                 duration: selectedPackage.duration,
                 image: selectedPackage.image,
               }}
+              itemType="umrah"
               onClose={() => setIsBookingOpen(false)}
-              isUmrah={true}
             />
           )}
         </DialogContent>

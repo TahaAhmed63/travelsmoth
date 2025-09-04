@@ -28,6 +28,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import TourBookingForm from "@/components/tour-booking-popup"
+import { BaseUrl } from "@/BaseUrl"
 
 function Loading() {
   return (
@@ -60,8 +61,7 @@ export default function TourDetailPage() {
     setLoading(true)
     setError(null)
     setTourData(null)
-    // Replace with your actual API endpoint
-    fetch(`http://localhost:3001/api/tours/${slug}`)
+    fetch(`${BaseUrl}/api/tours/${slug}`)
       .then(async (res) => {
         if (!res.ok) {
           throw new Error("Tour not found")
@@ -97,7 +97,7 @@ export default function TourDetailPage() {
       <section className="relative h-[70vh] overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src={`http://localhost:3001${tourData.mainImage}` || "/placeholder.svg"}
+            src={typeof tourData.mainImage === 'string' ? tourData.mainImage : "/placeholder.svg"}
             alt={tourData.title}
             className="w-full h-full object-cover"
           />
@@ -224,6 +224,7 @@ export default function TourDetailPage() {
                         duration: tourData.duration,
                         image: tourData.gallery?.[0],
                       }}
+                      itemType="tour"
                       onClose={() => setIsBookingOpen(false)}
                     />
                   </DialogContent>
@@ -470,7 +471,7 @@ export default function TourDetailPage() {
                           onClick={() => setCurrentImageIndex(index)}
                         >
                           <img
-                            src={`http://localhost:3001/${image}` || "/placeholder.svg"}
+                            src={typeof image === 'string' ? image : "/placeholder.svg"}
                             alt={`Gallery ${index + 1} - ${destination.name}`}
                             className="w-full h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
                           />
@@ -568,6 +569,7 @@ export default function TourDetailPage() {
                           duration: tourData.duration,
                           image: tourData.gallery?.[0],
                         }}
+                        itemType="tour"
                         onClose={() => setIsBookingOpen(false)}
                       />
                     </DialogContent>

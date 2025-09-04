@@ -30,6 +30,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import TourBookingForm from "@/components/tour-booking-popup"
+import { BaseUrl } from "@/BaseUrl"
 
 const amenityIcons: Record<string, any> = {
   "WiFi": Wifi,
@@ -68,7 +69,7 @@ export default function HotelDetailPage() {
   useEffect(() => {
     if (!slug) return
     setLoading(true)
-    fetch(`http://localhost:3001/api/hotels/${slug}`)
+    fetch(`${BaseUrl}/api/hotels/${slug}`)
       .then(async (res) => {
         if (!res.ok) throw new Error("Failed to fetch hotel")
         const data = await res.json()
@@ -91,7 +92,7 @@ export default function HotelDetailPage() {
   const allImages = [
     hotel?.mainimage || hotel?.mainImage || "/placeholder.svg",
     ...galleryImages,
-  ].filter(Boolean)
+  ].filter(Boolean).map((img: string) => (typeof img === 'string' ? img : "/placeholder.svg"))
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % (allImages.length || 1))
@@ -485,8 +486,8 @@ export default function HotelDetailPage() {
               duration: "per night",
               image: allImages[0],
             }}
+            itemType="hotel"
             onClose={() => setIsBookingOpen(false)}
-            isHotel={true}
           />
         </DialogContent>
       </Dialog>

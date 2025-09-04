@@ -302,9 +302,8 @@ export default function FeaturedToursCarousel() {
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`w-4 h-4 ${
-                                i < Math.floor(rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                              }`}
+                              className={`w-4 h-4 ${i < Math.floor(rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                                }`}
                             />
                           ))}
                         </div>
@@ -393,9 +392,8 @@ export default function FeaturedToursCarousel() {
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              index === currentIndex ? "bg-gold-500 scale-125" : "bg-bronze-300 hover:bg-bronze-400"
-            }`}
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentIndex ? "bg-gold-500 scale-125" : "bg-bronze-300 hover:bg-bronze-400"
+              }`}
           />
         ))}
       </div>
