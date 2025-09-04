@@ -329,15 +329,28 @@ export default function TourBookingForm() {
                             ? "Hotel"
                             : "Package"}
                       </Label>
+                      <div className="mb-4">
+                        <Select value={formData.destination} onValueChange={(v) => updateFormData("destination", v)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder={loadingItems ? "Loading..." : "Select option"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {filteredDestinations.map((d) => (
+                              <SelectItem key={d.id} value={d.slug || d.id}>{d.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {itemsError && <div className="text-sm text-red-600 mt-2">{itemsError}</div>}
+                      </div>
                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {filteredDestinations.map((destination) => (
                           <motion.div
                             key={destination.id}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={() => updateFormData("destination", destination.id)}
+                            onClick={() => updateFormData("destination", destination.slug || destination.id)}
                             className={`cursor-pointer rounded-lg border-2 transition-all duration-300 ${
-                              formData.destination === destination.id
+                              formData.destination === (destination.slug || destination.id)
                                 ? "border-gold-500 bg-gold-50"
                                 : "border-bronze-200 hover:border-gold-300"
                             }`}
@@ -350,7 +363,9 @@ export default function TourBookingForm() {
                             <div className="p-4">
                               <h3 className="font-semibold text-bronze-900">{destination.name}</h3>
                               <div className="flex items-center justify-between mt-2">
-                                <span className="text-gold-600 font-bold">${destination.price}</span>
+                                {destination.price ? (
+                                  <span className="text-gold-600 font-bold">${destination.price}</span>
+                                ) : <span />}
                                 <Badge variant="secondary" className="bg-bronze-100 text-bronze-700">
                                   {destination.duration}
                                 </Badge>
