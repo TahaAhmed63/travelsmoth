@@ -155,8 +155,38 @@ export default function TourBookingForm() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = () => {
-    alert("Booking request submitted! We'll contact you within 24 hours.")
+  const handleSubmit = async () => {
+    try {
+      const selected = destinations.find((d) => d.id === formData.destination)
+      const itemType = formData.serviceType === "tours" ? "tour" : formData.serviceType === "hotels" ? "hotel" : formData.serviceType === "umrah" ? "umrah" : "package"
+      const payload: any = {
+        customer_name: `${formData.firstName} ${formData.lastName}`.trim(),
+        customer_email: formData.email,
+        customer_phone: formData.phone,
+        item_type: itemType,
+        item_id: selected?.id || null,
+        item_name: selected?.name || null,
+        start_date: formData.startDate || null,
+        end_date: formData.endDate || null,
+        total_price: calculateTotal(),
+        currency: "USD",
+        number_of_guests: formData.adults + formData.children,
+        adults: formData.adults,
+        children: formData.children,
+        accommodation_preference: formData.accommodation || null,
+        selected_package: selected?.id || null,
+      }
+      const { BaseUrl } = await import("@/BaseUrl")
+      const res = await fetch(`${BaseUrl}/api/bookings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) throw new Error("Failed to submit booking")
+      alert("Booking submitted! Our team will contact you shortly.")
+    } catch (e: any) {
+      alert(e?.message || "Failed to submit booking")
+    }
   }
 
   const calculateTotal = () => {
