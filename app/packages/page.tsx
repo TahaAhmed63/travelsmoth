@@ -245,9 +245,7 @@ export default function PackagesPage() {
                     <Card className="overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
                       <div className="relative overflow-hidden">
                         <img
-                          src={typeof pkg.mainimage === 'string' && pkg.mainimage.startsWith('http')
-                            ? pkg.mainimage
-                            : (pkg.mainimage ? `${BaseUrl}/${pkg.mainimage}` : "/placeholder.svg")}
+                          src={typeof pkg.mainimage === 'string' ? pkg.mainimage : "/placeholder.svg"}
                           alt={pkg.name}
                           className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                         />
