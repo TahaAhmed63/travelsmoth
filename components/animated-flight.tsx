@@ -50,7 +50,7 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
               src={planeSrc}
               alt="plane"
               aria-hidden
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 w-[140%] max-w-none pointer-events-none drop-shadow-2xl z-10"
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 w-[140%] max-w-none pointer-events-none drop-shadow-2xl z-30"
               initial={{ x: '120%', opacity: 0, rotate: 6 }}
               whileInView={{ x: '10%', opacity: 1, rotate: 0 }}
               viewport={{ once: true, amount: 0.5 }}
