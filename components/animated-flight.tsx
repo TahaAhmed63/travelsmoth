@@ -23,7 +23,7 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
           backgroundSize: 'cover',
           width: '100vw',
           marginLeft: 'calc(50% - 50vw)',
-          padding: '150px 0',
+          padding: '160px 0',
         }} >
           <div className="relative">
             {/* Mobile: decorative image above text */}
