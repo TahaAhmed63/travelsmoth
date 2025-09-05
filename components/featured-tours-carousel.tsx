@@ -155,7 +155,7 @@ export default function FeaturedToursCarousel() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative z-20">
       {/* Main Carousel */}
       <div
         className="relative overflow-hidden rounded-2xl"
