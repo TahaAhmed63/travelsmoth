@@ -1,5 +1,4 @@
 import { motion } from "framer-motion"
-import { motion } from "framer-motion"
 import Link from "next/link"
 
 export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: string; cloudsSrc: string }) {
