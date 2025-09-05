@@ -423,35 +423,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-gold-500 to-bronze-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Ready for Your Next Adventure?</h2>
-            <p className="text-xl mb-8 max-w-2xl mx-auto">
-              Join thousands of satisfied travelers and discover the world with our expertly crafted experiences
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" className="bg-white text-gold-600 hover:bg-gray-100">
-                <Link href="/contact">Get Started Today</Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white hover:text-gold-600"
-              >
-                <Link href="/tours">Browse Tours</Link>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* Animated Flight Section */}
+      <AnimatedFlight
+        planeSrc={"https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F3bed0609092440a3b2ae2dff707de10f?format=webp&width=800"}
+        cloudsSrc={"https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F72220fb7433c48c69a4c0e09132d4699?format=webp&width=800"}
+      />
     </div>
   )
 }
