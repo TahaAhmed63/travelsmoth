@@ -46,24 +46,7 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
               <div className="absolute inset-0 bg-gradient-to-l from-white/90 via-white/70 to-transparent" />
             </div>
             {/* Plane: positioned absolutely so it can extend and cover the section like the example */}
-            <motion.img
-              src={planeSrc}
-              alt="plane"
-              aria-hidden
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 w-[140%] max-w-none pointer-events-none drop-shadow-2xl z-30"
-              initial={{ x: '120%', opacity: 0, rotate: 6 }}
-              whileInView={{ x: '10%', opacity: 1, rotate: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ type: "spring", stiffness: 40, damping: 18 }}
-            />
-
-            {/* continuous subtle bobbing on wrapper to mimic flight */}
-            <motion.div className="absolute inset-0 pointer-events-none z-0" initial={{ y: 0 }} animate={{ y: [0, -8, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', type: 'tween' }} />
-
-            {/* subtle plane glow */}
-            <div className="absolute inset-0 pointer-events-none -z-0">
-              <div style={{ background: 'radial-gradient(ellipse at 30% 60%, rgba(255,215,0,0.12) 0%, rgba(255,255,255,0) 40%)' }} className="w-full h-full" />
-            </div>
+       
           </div>
         </div>
       </div>
