@@ -27,7 +27,7 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
         }} >
           <div className="relative">
             {/* Mobile: decorative image above text */}
-            <img src="https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F687cabaabd0740a79887b881752352c8?format=webp&width=800" alt="traveler" className="block md:hidden w-full rounded-xl mb-6 object-cover h-56" />
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F687cabaabd0740a79887b881752352c8?format=webp&width=800" alt="traveler" className="hidden" />
 
             <motion.h2 initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-4xl md:text-5xl font-bold text-bronze-900 mb-4">Ready for Takeoff?</motion.h2>
             <motion.p initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.08 }} className="text-lg text-bronze-700 mb-6 max-w-xl">
