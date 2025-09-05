@@ -4,9 +4,10 @@ import Link from "next/link"
 
 export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: string; cloudsSrc: string }) {
   const sectionStyle = {
-    backgroundImage: `linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.4)), url(${cloudsSrc})`,
+    backgroundImage: `linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.4)), url(https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F72220fb7433c48c69a4c0e09132d4699?format=webp&width=800)`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
+    paddingTop: '96px',
   }
 
   return (
