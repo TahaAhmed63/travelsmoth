@@ -12,6 +12,7 @@ import FeaturedHotels from "@/components/featured-hotels"
 import { useRouter } from "next/navigation"
 import FeaturedToursCarousel from "@/components/featured-tours-carousel"
 import UmrahPackagesSection from "@/components/umrah-packages-section"
+import AnimatedFlight from "@/components/animated-flight"
 
 const featuredTours = [
   {
