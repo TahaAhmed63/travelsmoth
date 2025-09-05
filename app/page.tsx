@@ -220,7 +220,8 @@ export default function HomePage() {
 
       {/* Featured Hotels Section */}
       <FeaturedHotels />
-      <UmrahPackagesSection />
+  <UmrahPackagesSection />
+  <WhyChooseUs />
       {/* Why Choose Us Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-5xl flex flex-col items-center justify-center">
