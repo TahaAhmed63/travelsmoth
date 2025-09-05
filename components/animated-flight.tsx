@@ -11,7 +11,7 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
   }
 
   return (
-    <section className="relative overflow-hidden py-0" style={sectionStyle}>
+  
       {/* overlay to soften background */}
       <div className="absolute inset-0 bg-white/40 pointer-events-none -z-10" />
 
@@ -69,6 +69,6 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
 
       {/* subtle bottom gradient */}
       <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-white to-transparent pointer-events-none" />
-    </section>
+   
   )
 }
