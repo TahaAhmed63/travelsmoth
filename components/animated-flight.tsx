@@ -3,14 +3,14 @@ import Link from "next/link"
 
 export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: string; cloudsSrc: string }) {
   return (
-    <section className="relative overflow-visible bg-gradient-to-b from-white to-cream-50 py-24">
+    <section className="relative overflow-hidden bg-gradient-to-b from-white to-cream-50 py-24">
       {/* Clouds background (behind content) */}
       <motion.img
         src={cloudsSrc}
         alt="clouds"
         aria-hidden
         className="absolute left-0 top-0 w-full h-64 object-cover opacity-60 pointer-events-none -z-10"
-        animate={{ x: [0, -80, 0] }}
+        animate={{ x: [0, -40, 0] }}
         transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
       />
 
@@ -40,30 +40,33 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
             </div>
           </div>
 
-          <div className="relative h-64 md:h-80 flex items-center justify-center overflow-visible">
-            {/* Plane container: entrance + continuous bobbing */}
-            <motion.div className="z-10" initial={{ y: 0 }} animate={{ y: [0, -6, 0] }} transition={{ duration: 3, repeat: Infinity, repeatType: 'loop', ease: 'easeInOut', type: 'tween' }}>
+          <div className="relative h-64 md:h-80 flex items-center justify-center">
+            {/* Plane: positioned absolutely so it can extend and cover the section like the example */}
+            <div className="relative w-full h-full overflow-hidden">
               <motion.img
                 src={planeSrc}
                 alt="plane"
                 aria-hidden
-                className="w-80 max-w-full pointer-events-none drop-shadow-2xl"
-                initial={{ x: 900, opacity: 0, rotate: 8 }}
-                whileInView={{ x: 0, opacity: 1, rotate: 0 }}
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 w-[140%] max-w-none pointer-events-none drop-shadow-2xl z-10"
+                initial={{ x: '120%', opacity: 0, rotate: 6 }}
+                whileInView={{ x: '10%', opacity: 1, rotate: 0 }}
                 viewport={{ once: true, amount: 0.5 }}
-                transition={{ type: "spring", stiffness: 50, damping: 14, mass: 0.8 }}
+                transition={{ type: "spring", stiffness: 40, damping: 18 }}
               />
-            </motion.div>
+
+              {/* continuous subtle bobbing on wrapper to mimic flight */}
+              <motion.div
+                className="absolute inset-0 pointer-events-none z-0"
+                initial={{ y: 0 }}
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', type: 'tween' }}
+              />
+            </div>
 
             {/* subtle plane glow */}
-            <motion.div
-              className="absolute inset-0 pointer-events-none z-0"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              style={{ background: 'radial-gradient(ellipse at 30% 60%, rgba(255,215,0,0.12) 0%, rgba(255,255,255,0) 40%)' }}
-            />
+            <div className="absolute inset-0 pointer-events-none -z-0">
+              <div style={{ background: 'radial-gradient(ellipse at 30% 60%, rgba(255,215,0,0.12) 0%, rgba(255,255,255,0) 40%)' }} className="w-full h-full" />
+            </div>
           </div>
         </div>
       </div>
