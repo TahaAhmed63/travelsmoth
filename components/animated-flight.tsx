@@ -14,9 +14,12 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
       {/* overlay to soften background */}
       <div className="absolute inset-0 bg-white/40 pointer-events-none -z-10" />
 
-      <div className="container mx-auto px-4 relative z-20">
+      <div className="container mx-auto px-4 relative z-20 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div>
+          <div className="relative">
+            {/* Mobile: decorative image above text */}
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F687cabaabd0740a79887b881752352c8?format=webp&width=800" alt="traveler" className="block md:hidden w-full rounded-xl mb-6 object-cover h-56" />
+
             <motion.h2 initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-4xl md:text-5xl font-bold text-bronze-900 mb-4">Ready for Takeoff?</motion.h2>
             <motion.p initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.08 }} className="text-lg text-bronze-700 mb-6 max-w-xl">
               Experience the thrill of seamless travel. Book your next adventure today and let us handle the rest. From flights to bespoke packages, we make travel effortless.
@@ -31,6 +34,17 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
                 <motion.button whileHover={{ scale: 1.03 }} className="px-6 py-3 rounded-lg border-2 border-bronze-300 text-bronze-900 font-semibold bg-white/90">Browse Tours</motion.button>
               </Link>
             </div>
+
+            {/* Decorative large image on desktop */}
+            <motion.img
+              src="https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F687cabaabd0740a79887b881752352c8?format=webp&width=800"
+              alt="traveler"
+              className="hidden md:block absolute -left-12 top-1/2 transform -translate-y-1/2 w-72 rounded-2xl shadow-2xl z-10"
+              initial={{ x: -60, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: 'spring', stiffness: 40, damping: 16 }}
+            />
           </div>
 
           <div className="relative h-64 md:h-80 flex items-center justify-center overflow-hidden">
