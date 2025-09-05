@@ -15,7 +15,7 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
       {/* overlay to soften background */}
       <div className="absolute inset-0 bg-white/40 pointer-events-none -z-10" />
 
-      <div className="container mx-auto px-4 relative z-20 overflow-hidden">
+      <div className=" mx-auto px-4 relative z-20 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center" style={{
           backgroundImage: "url(https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F9b828325963f4395b1b89c21dd687c4b)",
           backgroundRepeat: 'no-repeat',
