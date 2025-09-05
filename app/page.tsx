@@ -305,40 +305,89 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Modern background section with gradient and overlayed text */}
-          <div
-            className="relative w-full mt-10 rounded-2xl overflow-hidden shadow-xl"
-            style={{
-              minHeight: '320px',
-              backgroundImage: `
-                linear-gradient(
-                  to bottom right,
-                  rgba(255, 215, 0, 0.85) 0%,
-                  rgba(255, 255, 255, 0.85) 100%
-                ),
-                url('/modern-bg-mosque.jpg')
-              `,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-            }}
+          {/* Modern info section - redesigned */}
+          <section className="relative w-full mt-10">
+            <div className="container mx-auto px-4">
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
               >
-            <div className="relative z-10 flex flex-col items-center justify-center px-8 py-16 md:py-20 h-full">
-              <div className="max-w-4xl mx-auto text-center text-gray-900">
-                <p className="mb-4 text-lg md:text-xl font-semibold drop-shadow-lg">
-                  We feel the above points are important to mention because:
-                </p>
-                <p className="mb-4 text-base md:text-lg font-medium drop-shadow-lg">
-                  Every year millions of Muslims celebrate hajj and umrah by making the pilgrimage to Mecca in what is the world's biggest annual gathering of people. Within this mass of humanity are thousands of UK citizens, many of whom will have saved for years in the knowledge that, for them, this will be a once-in-a-lifetime trip.
-                </p>
-                <p className="text-base md:text-lg font-medium drop-shadow-lg">
-                  Unfortunately as the pilgrimage season approaches there will also be a significant number of Muslims who have paid for a tour package for themselves and their family only to discover their dreams have been shattered by fraudsters.
-                </p>
-              </div>
+                {/* Left: Text + features */}
+                <div>
+                  <div className="bg-white/80 dark:bg-black/50 backdrop-blur-md rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-shadow">
+                    <h3 className="text-3xl md:text-4xl font-extrabold text-bronze-900 mb-4">
+                      Stop Dreaming — Start Your Journey
+                    </h3>
+                    <p className="text-bronze-700 text-lg mb-6">
+                      We craft seamless travel experiences — from curated tours to hassle-free bookings. Trust our 40+ years of expertise to make your next trip unforgettable.
+                    </p>
+
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <li className="flex items-start gap-3">
+                        <span className="mt-1 text-gold-500">
+                          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.414L8 11.086l6.793-6.793a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                        </span>
+                        <div>
+                          <div className="font-semibold text-bronze-900">Trusted & Verified</div>
+                          <div className="text-sm text-bronze-600">ATOL & IATA registered</div>
+                        </div>
+                      </li>
+
+                      <li className="flex items-start gap-3">
+                        <span className="mt-1 text-gold-500">
+                          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 00-.894.553L6 8H4a1 1 0 000 2h2l2.236 4.473A2 2 0 0010 18a2 2 0 001.764-1.527L14 10h2a1 1 0 100-2h-2l-3.106-5.447A1 1 0 0010 2z"/></svg>
+                        </span>
+                        <div>
+                          <div className="font-semibold text-bronze-900">Personalized Service</div>
+                          <div className="text-sm text-bronze-600">Tailored itineraries & 24/7 support</div>
+                        </div>
+                      </li>
+
+                      <li className="flex items-start gap-3">
+                        <span className="mt-1 text-gold-500">
+                          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h4a1 1 0 110 2H4v4a1 1 0 11-2 0v-4zM14 2a1 1 0 00-.707.293L9 6.586 8.414 6 4.707 9.707A1 1 0 105.414 11.414L9 7.828 9.586 8.414 14 4.828A1 1 0 0014 2z"/></svg>
+                        </span>
+                        <div>
+                          <div className="font-semibold text-bronze-900">Secure Payments</div>
+                          <div className="text-sm text-bronze-600">Multiple payment options & SSL protected</div>
+                        </div>
+                      </li>
+
+                      <li className="flex items-start gap-3">
+                        <span className="mt-1 text-gold-500">
+                          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M10 3a1 1 0 011 1v6h6a1 1 0 110 2h-6v6a1 1 0 11-2 0v-6H3a1 1 0 110-2h6V4a1 1 0 011-1z"/></svg>
+                        </span>
+                        <div>
+                          <div className="font-semibold text-bronze-900">Best Price Guarantee</div>
+                          <div className="text-sm text-bronze-600">Competitive rates with transparent fees</div>
+                        </div>
+                      </li>
+                    </ul>
+
+                    <div className="mt-6 flex gap-3">
+                      <a href="/contact" className="inline-block px-5 py-3 bg-gold-500 text-white rounded-lg font-semibold shadow">Contact Us</a>
+                      <a href="/tours" className="inline-block px-5 py-3 border border-bronze-200 rounded-lg text-bronze-900 font-semibold">Explore Tours</a>
+                    </div>
+                  </div>
                 </div>
-            {/* Optional: darken overlay for better text contrast */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gold-400/80 via-white/70 to-gold-200/80 pointer-events-none" />
-          </div>
+
+                {/* Right: Visual hero card */}
+                <motion.div className="relative" initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} viewport={{ once: true }}>
+                  <div className="relative w-full h-80 rounded-2xl overflow-hidden shadow-2xl">
+                    <img src="/23.jpg" alt="hero" className="object-cover w-full h-full" />
+                    <div className="absolute left-6 bottom-6 bg-white/90 backdrop-blur-md rounded-xl p-4 shadow">
+                      <div className="text-sm text-bronze-600">Featured</div>
+                      <div className="text-lg font-bold text-bronze-900">Exclusive Umrah Packages</div>
+                      <div className="text-sm text-bronze-600">Starting from <span className="font-semibold text-gold-600">$899</span></div>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            </div>
+          </section>
         </div>
       </section>
 
