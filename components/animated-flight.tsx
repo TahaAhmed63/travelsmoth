@@ -1,12 +1,11 @@
-import { motion } from "framer-motion"
-import { motion } from "framer-motion"
+import * as FM from "framer-motion"
 import Link from "next/link"
 
 export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: string; cloudsSrc: string }) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-white to-cream-50 py-24">
       {/* Clouds background (behind content) */}
-      <motion.img
+      <FM.motion.img
         src={cloudsSrc}
         alt="clouds"
         aria-hidden
@@ -25,18 +24,18 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
 
             <div className="flex gap-4">
               <Link href="/contact" className="inline-block">
-                <motion.button
+                <FM.motion.button
                   whileHover={{ scale: 1.03 }}
                   className="px-6 py-3 rounded-lg bg-gold-500 text-white font-semibold shadow-lg"
                 >
                   Get Started
-                </motion.button>
+                </FM.motion.button>
               </Link>
 
               <Link href="/tours" className="inline-block">
-                <motion.button whileHover={{ scale: 1.03 }} className="px-6 py-3 rounded-lg border-2 border-bronze-300 text-bronze-900 font-semibold bg-white/90">
+                <FM.motion.button whileHover={{ scale: 1.03 }} className="px-6 py-3 rounded-lg border-2 border-bronze-300 text-bronze-900 font-semibold bg-white/90">
                   Browse Tours
-                </motion.button>
+                </FM.motion.button>
               </Link>
             </div>
           </div>
@@ -44,7 +43,7 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
           <div className="relative h-64 md:h-80 flex items-center justify-center">
             {/* Plane: positioned absolutely so it can extend and cover the section like the example */}
             <div className="relative w-full h-full overflow-hidden">
-              <motion.img
+              <FM.motion.img
                 src={planeSrc}
                 alt="plane"
                 aria-hidden
@@ -56,7 +55,7 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
               />
 
               {/* continuous subtle bobbing on wrapper to mimic flight */}
-              <motion.div
+              <FM.motion.div
                 className="absolute inset-0 pointer-events-none z-0"
                 initial={{ y: 0 }}
                 animate={{ y: [0, -8, 0] }}
