@@ -39,17 +39,12 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
 
           <div className="relative h-64 md:h-80 flex items-center justify-center overflow-hidden">
             {/* Right-side modern card with traveler image */}
-            <motion.div className="hidden md:block absolute left-6 top-8 w-80 rounded-3xl overflow-hidden shadow-2xl z-20 transform hover:scale-105 transition-transform" initial={{ x: 40, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }} transition={{ type: 'spring', stiffness: 40, damping: 16 }}>
+            {/* Right-side full-height decorative image covering the section height on desktop */}
+            <div className="hidden md:block absolute right-0 top-0 h-full w-1/2 lg:w-5/12 overflow-hidden z-0">
               <img src="https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F687cabaabd0740a79887b881752352c8?format=webp&width=800" alt="traveler" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex flex-col justify-end p-4">
-                <div className="text-xs text-white/90">Featured</div>
-                <div className="text-lg font-bold text-white">Feel the Freedom</div>
-                <div className="mt-3 flex gap-2">
-                  <a href="/tours" className="px-3 py-1 bg-white text-bronze-900 rounded">Explore</a>
-                  <a href="/contact" className="px-3 py-1 border border-white text-white rounded">Contact</a>
-                </div>
-              </div>
-            </motion.div>
+              {/* gradient to smoothly blend image into content */}
+              <div className="absolute inset-0 bg-gradient-to-l from-white/90 via-white/70 to-transparent" />
+            </div>
             {/* Plane: positioned absolutely so it can extend and cover the section like the example */}
             <motion.img
               src={planeSrc}
