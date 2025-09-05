@@ -34,7 +34,7 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
               Experience the thrill of seamless travel. Book your next adventure today and let us handle the rest. From flights to bespoke packages, we make travel effortless.
             </motion.p>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4" style={{ paddingLeft: '17px' }}>
               <Link href="/contact" className="inline-block">
                 <motion.button whileHover={{ scale: 1.03 }} className="px-6 py-3 rounded-lg bg-gold-500 text-white font-semibold shadow-lg">Get Started</motion.button>
               </Link>
