@@ -41,18 +41,19 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
           </div>
 
           <div className="relative h-64 md:h-80 flex items-center justify-center overflow-visible">
-            {/* Plane animation - enters from right when in view */}
-            <motion.img
-              src={planeSrc}
-              alt="plane"
-              aria-hidden
-              className="w-80 max-w-full pointer-events-none drop-shadow-2xl z-10"
-              initial={{ x: 900, opacity: 0, rotate: 8 }}
-              whileInView={{ x: 0, opacity: 1, rotate: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ type: "spring", stiffness: 50, damping: 14, mass: 0.8 }}
-              animate={{ y: [0, -6, 0] }}
-            />
+            {/* Plane container: entrance + continuous bobbing */}
+            <motion.div className="z-10" initial={{ y: 0 }} animate={{ y: [0, -6, 0] }} transition={{ duration: 3, repeat: Infinity, repeatType: 'loop', ease: 'easeInOut', type: 'tween' }}>
+              <motion.img
+                src={planeSrc}
+                alt="plane"
+                aria-hidden
+                className="w-80 max-w-full pointer-events-none drop-shadow-2xl"
+                initial={{ x: 900, opacity: 0, rotate: 8 }}
+                whileInView={{ x: 0, opacity: 1, rotate: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ type: "spring", stiffness: 50, damping: 14, mass: 0.8 }}
+              />
+            </motion.div>
 
             {/* subtle plane glow */}
             <motion.div
