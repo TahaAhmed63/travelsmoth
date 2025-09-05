@@ -12,6 +12,8 @@ import FeaturedHotels from "@/components/featured-hotels"
 import { useRouter } from "next/navigation"
 import FeaturedToursCarousel from "@/components/featured-tours-carousel"
 import UmrahPackagesSection from "@/components/umrah-packages-section"
+import AnimatedFlight from "@/components/animated-flight"
+import WhyChooseUs from "@/components/why-choose-us"
 
 const featuredTours = [
   {
@@ -218,128 +220,10 @@ export default function HomePage() {
 
       {/* Featured Hotels Section */}
       <FeaturedHotels />
-      <UmrahPackagesSection />
+  <UmrahPackagesSection />
+  <WhyChooseUs />
       {/* Why Choose Us Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 max-w-5xl flex flex-col items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gold-500">
-              Why buy from travelsmoth.pk
-            </h2>
-            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-              We are travelsmoth.pk, your trusted travel partner. Pilgrims and travelers can purchase their travel products from us with total confidence for the reasons set below:
-            </p>
-          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center mb-12 w-full">
-            {/* Images column */}
-            <div className="flex justify-center items-center">
-              <div className="flex flex-col md:flex-row gap-6 items-center md:items-end justify-center w-full">
-                <img
-                  src="/23.jpg"
-                  alt="Mosque 1"
-                  className="rounded-lg shadow-lg object-cover w-56 h-60 md:w-64 md:h-[20rem] border-4 border-white"
-                  style={{ position: 'static' }}
-                />
-                <img
-                  src="/25-1.jpg"
-                  alt="Mosque 2"
-                  className="rounded-lg shadow-lg object-cover w-56 h-80 md:w-64 md:h-[28rem] border-4 border-white"
-                  style={{ position: 'static', left: 'unset', right: 0 }}
-                />
-              </div>
-            </div>
-            {/* Text column */}
-            <div className="flex flex-col justify-center items-center">
-              <ul className="space-y-4 text-left w-full text-base max-w-lg mx-auto">
-                <li className="flex items-start gap-3">
-                  <span className="mt-1 text-gold-500">
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.414L8 11.086l6.793-6.793a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                  </span>
-                  40 years of travel industry experience.
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="mt-1 text-gold-500">
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.414L8 11.086l6.793-6.793a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                  </span>
-                  ATOL protected 5311 you can check online
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="mt-1 text-gold-500">
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.414L8 11.086l6.793-6.793a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                  </span>
-                  IATA registered 91252582 you can check online
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="mt-1 text-gold-500">
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.414L8 11.086l6.793-6.793a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                  </span>
-                  We are the visa issuing agent - also authorized by Saudi ministry of foreign affairs.
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="mt-1 text-gold-500">
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.414L8 11.086l6.793-6.793a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                  </span>
-                  For flights / hotels / visas/ transportation. We book directly for our customers. We are not third party suppliers.
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="mt-1 text-gold-500">
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.414L8 11.086l6.793-6.793a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                  </span>
-                  When you buy from us, your money is secure.
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="mt-1 text-gold-500">
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.414L8 11.086l6.793-6.793a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                  </span>
-                  Check our reviews on <span className="inline-flex items-center ml-1"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Trustpilot_logo.png" alt="Trustpilot" className="h-5 inline-block mr-1" />Trustpilot</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Modern background section with gradient and overlayed text */}
-          <div
-            className="relative w-full mt-10 rounded-2xl overflow-hidden shadow-xl"
-            style={{
-              minHeight: '320px',
-              backgroundImage: `
-                linear-gradient(
-                  to bottom right,
-                  rgba(255, 215, 0, 0.85) 0%,
-                  rgba(255, 255, 255, 0.85) 100%
-                ),
-                url('/modern-bg-mosque.jpg')
-              `,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-            }}
-              >
-            <div className="relative z-10 flex flex-col items-center justify-center px-8 py-16 md:py-20 h-full">
-              <div className="max-w-4xl mx-auto text-center text-gray-900">
-                <p className="mb-4 text-lg md:text-xl font-semibold drop-shadow-lg">
-                  We feel the above points are important to mention because:
-                </p>
-                <p className="mb-4 text-base md:text-lg font-medium drop-shadow-lg">
-                  Every year millions of Muslims celebrate hajj and umrah by making the pilgrimage to Mecca in what is the world's biggest annual gathering of people. Within this mass of humanity are thousands of UK citizens, many of whom will have saved for years in the knowledge that, for them, this will be a once-in-a-lifetime trip.
-                </p>
-                <p className="text-base md:text-lg font-medium drop-shadow-lg">
-                  Unfortunately as the pilgrimage season approaches there will also be a significant number of Muslims who have paid for a tour package for themselves and their family only to discover their dreams have been shattered by fraudsters.
-                </p>
-              </div>
-                </div>
-            {/* Optional: darken overlay for better text contrast */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gold-400/80 via-white/70 to-gold-200/80 pointer-events-none" />
-          </div>
-        </div>
-      </section>
 
       {/* Testimonials Section */}
       <section className="py-20 bg-gray-50">
@@ -422,35 +306,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-gold-500 to-bronze-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Ready for Your Next Adventure?</h2>
-            <p className="text-xl mb-8 max-w-2xl mx-auto">
-              Join thousands of satisfied travelers and discover the world with our expertly crafted experiences
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" className="bg-white text-gold-600 hover:bg-gray-100">
-                <Link href="/contact">Get Started Today</Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white hover:text-gold-600"
-              >
-                <Link href="/tours">Browse Tours</Link>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* Animated Flight Section */}
+      <AnimatedFlight
+        planeSrc={"https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F3bed0609092440a3b2ae2dff707de10f?format=webp&width=800"}
+        cloudsSrc={"https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F72220fb7433c48c69a4c0e09132d4699?format=webp&width=800"}
+      />
     </div>
   )
 }

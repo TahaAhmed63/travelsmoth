@@ -155,7 +155,7 @@ export default function FeaturedToursCarousel() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative z-20">
       {/* Main Carousel */}
       <div
         className="relative overflow-hidden rounded-2xl"
@@ -215,7 +215,7 @@ export default function FeaturedToursCarousel() {
                   : "—"
               return (
                 <motion.div
-                  key={`${tour.id}-${currentIndex}`}
+                  key={`${tour.id}-${tour.slideIndex}-${currentIndex}-${index}`}
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -50 }}

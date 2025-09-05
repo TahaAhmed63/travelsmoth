@@ -266,8 +266,8 @@ export default function TourBookingForm() {
           </div>
 
           {/* Form Content */}
-          <Card className="border-0 shadow-2xl">
-            <CardHeader className="bg-gradient-to-r from-gold-500 to-bronze-600 text-white rounded-t-lg">
+          <Card className="border-0 shadow-2xl bg-white/60 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-gold-500 to-bronze-600 text-white rounded-t-lg backdrop-blur-md bg-opacity-95">
               <CardTitle className="text-2xl flex items-center gap-3">
                 {getCurrentStepIcon()}
                 {steps[currentStep - 1].title}
