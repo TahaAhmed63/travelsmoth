@@ -35,19 +35,21 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
               </Link>
             </div>
 
-            {/* Decorative large image on desktop */}
-            <motion.img
-              src="https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F687cabaabd0740a79887b881752352c8?format=webp&width=800"
-              alt="traveler"
-              className="hidden md:block absolute -left-12 top-1/2 transform -translate-y-1/2 w-72 rounded-2xl shadow-2xl z-10"
-              initial={{ x: -60, opacity: 0 }}
-              whileInView={{ x: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ type: 'spring', stiffness: 40, damping: 16 }}
-            />
           </div>
 
           <div className="relative h-64 md:h-80 flex items-center justify-center overflow-hidden">
+            {/* Right-side modern card with traveler image */}
+            <motion.div className="hidden md:block absolute left-6 top-8 w-80 rounded-3xl overflow-hidden shadow-2xl z-20 transform hover:scale-105 transition-transform" initial={{ x: 40, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }} transition={{ type: 'spring', stiffness: 40, damping: 16 }}>
+              <img src="https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F687cabaabd0740a79887b881752352c8?format=webp&width=800" alt="traveler" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex flex-col justify-end p-4">
+                <div className="text-xs text-white/90">Featured</div>
+                <div className="text-lg font-bold text-white">Feel the Freedom</div>
+                <div className="mt-3 flex gap-2">
+                  <a href="/tours" className="px-3 py-1 bg-white text-bronze-900 rounded">Explore</a>
+                  <a href="/contact" className="px-3 py-1 border border-white text-white rounded">Contact</a>
+                </div>
+              </div>
+            </motion.div>
             {/* Plane: positioned absolutely so it can extend and cover the section like the example */}
             <motion.img
               src={planeSrc}
