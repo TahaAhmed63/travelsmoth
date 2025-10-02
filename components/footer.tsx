@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { MapPin, Phone, Mail, Facebook, Twitter, Instagram, Youtube } from "lucide-react"
+import { MapPin, Phone, Mail, Facebook, Twitter, Instagram, Youtube, LinkedinIcon } from "lucide-react"
 import Image from "next/image"
 
 const footerLinks = {
@@ -36,10 +36,10 @@ const footerLinks = {
 }
 
 const socialLinks = [
-  { name: "Facebook", icon: Facebook, href: "https://facebook.com/travelsmooth" },
-  { name: "Twitter", icon: Twitter, href: "https://twitter.com/travelsmooth" },
-  { name: "Instagram", icon: Instagram, href: "https://instagram.com/travelsmooth" },
-  { name: "YouTube", icon: Youtube, href: "https://youtube.com/travelsmooth" },
+  { name: "Facebook", icon: Facebook, href: "https://www.facebook.com/travelsmoothkhi/" },
+  { name: "Instagram", icon: Instagram, href: "https://instagram.com/travelsmooth_iata?igshid=MjEwN2IyYWYwYw==" },
+  { name: "TikTok", icon: Youtube, href: "https://www.tiktok.com/@travelsmoothiata?_t=8doPyq2hsMD&_r=1" },
+  { name: "LinkedIn", icon: LinkedinIcon, href: "https://www.linkedin.com/in/travel-smooth-iata-808a8414b" },
 ]
 
 export default function Footer() {
@@ -62,22 +62,35 @@ export default function Footer() {
             </Link>
 
             <p className="text-gray-300 mb-6 max-w-md">
-              Curating premium travel experiences with unparalleled service. We connect discerning travelers with the
-              world's most exclusive destinations, ensuring seamless and unforgettable journeys.
+              Office 101, B228, Midway B Commercial, Bahria Town Karachi
             </p>
 
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-gold-400" />
-                <span className="text-gray-300">123 Travel Street, Adventure City, AC 12345</span>
+                <span className="text-gray-300">Office 101, B228, Midway B Commercial, Bahria Town Karachi</span>
               </div>
-              <div className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-gold-400" />
-                <span className="text-gray-300">+1 (555) 123-4567</span>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-gold-400" />
+                  <Link href="tel:+923018800022" className="text-gray-300 hover:text-white transition-colors">0301 880 0022</Link>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-gold-400" />
+                  <Link href="tel:+923242177731" className="text-gray-300 hover:text-white transition-colors">0324 217 7731</Link>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-gold-400" />
+                  <Link href="tel:+923242100041" className="text-gray-300 hover:text-white transition-colors">0324 210 0041</Link>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-gold-400" />
+                  <Link href="tel:+966581286853" className="text-gray-300 hover:text-white transition-colors">+966 58 128 6853</Link>
+                </div>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-gold-400" />
-                <span className="text-gray-300">info@travelsmooth.com</span>
+                <span className="text-gray-300">Travelsmoothpk@gmail.com</span>
               </div>
             </div>
           </div>
@@ -169,6 +182,9 @@ export default function Footer() {
               </Link>
               <Link href="/cookies" className="hover:text-white transition-colors">
                 Cookie Policy
+              </Link>
+              <Link href="https://wa.me/923018800022?text=Hi%20Travel%20Smooth!%20I%20would%20like%20to%20inquire." target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                WhatsApp
               </Link>
             </div>
           </div>

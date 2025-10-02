@@ -1,1 +1,1 @@
-export const BaseUrl = "https://traveladmin-nine.vercel.app";
+    export const BaseUrl = "https://traveladmin-nine.vercel.app";

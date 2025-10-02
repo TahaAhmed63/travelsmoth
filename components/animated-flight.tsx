@@ -17,7 +17,7 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
 
       <div className=" mx-auto px-4 relative z-20 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center" style={{
-          backgroundImage: "url(https://cdn.builder.io/api/v1/image/assets%2F9ddc4b4090114e7aa6d47a7c04058f87%2F9b828325963f4395b1b89c21dd687c4b)",
+          backgroundImage: "url(/lastsec.png)",
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           backgroundSize: 'cover',
@@ -46,7 +46,7 @@ export default function AnimatedFlight({ planeSrc, cloudsSrc }: { planeSrc: stri
 
           </div>
 
-          <div className="relative h-64 md:h-80 flex items-center justify-center overflow-hidden">
+          <div className="relative h-64 md:h-80 md:visible hidden flex items-center justify-center overflow-hidden">
             {/* Right-side modern card with traveler image */}
             {/* Right-side full-height decorative image covering the section height on desktop */}
             {/* Plane: positioned absolutely so it can extend and cover the section like the example */}

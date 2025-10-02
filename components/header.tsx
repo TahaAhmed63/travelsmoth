@@ -120,11 +120,11 @@ export default function Header() {
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4" />
-              <span>+1 (555) 123-4567</span>
+              <span>0301 880 0022</span>
             </div>
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
-              <span>info@travelsmooth.com</span>
+              <span>Travelsmoothpk@gmail.com</span>
             </div>
           </div>
           <div className="hidden md:block">
@@ -228,15 +228,7 @@ export default function Header() {
                   )}
                 </div>
               ))}
-              {/* Call Our Expert Button */}
-              {/* <a
-                href="tel:+15551234567"
-                className="ml-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-lg shadow px-6 py-2 transition-colors text-base flex items-center gap-2"
-                style={{ boxShadow: '0 2px 8px 0 rgba(218,165,32,0.15)' }}
-              >
-                <Phone className="w-5 h-5" />
-                Call Our Expert
-              </a> */}
+              {/* CTA reserved */}
             </div>
 
             {/* CTA Button */}
@@ -294,14 +286,16 @@ export default function Header() {
                       )}
                     </div>
                   ))}
-                  {/* Call Our Expert Button (Mobile) */}
+                  {/* WhatsApp (Mobile) */}
                   <a
-                    href="tel:+15551234567"
+                    href="https://wa.me/923018800022?text=Hi%20Travel%20Smooth!%20I%20would%20like%20to%20inquire."
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-lg shadow px-6 py-3 transition-colors text-base flex items-center gap-2 justify-center mt-2"
                     style={{ boxShadow: '0 2px 8px 0 rgba(218,165,32,0.15)' }}
                   >
                     <Phone className="w-5 h-5" />
-                    Call Our Expert
+                    WhatsApp Us
                   </a>
                   <Button className="bg-gold-500 hover:bg-gold-600 text-white mt-4">Book Now</Button>
                 </div>
@@ -393,8 +387,29 @@ export default function Header() {
           )}
         </AnimatePresence>
       </header>
+      {/* Floating WhatsApp (left) */}
       <a
-        href="tel:+15551234567"
+        href="https://wa.me/923018800022?text=Hi%20Travel%20Smooth!%20I%20would%20like%20to%20inquire."
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed z-50 bottom-6 left-6 rounded-full shadow-lg w-14 h-14 flex items-center justify-center transition-transform hover:scale-105"
+        style={{ backgroundColor: '#25D366', boxShadow: '0 2px 16px 0 rgba(0,0,0,0.25)' }}
+        aria-label="WhatsApp"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 32 32"
+          className="w-7 h-7 fill-white"
+          aria-hidden="true"
+        >
+          <path d="M19.11 17.19c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.84 1.05-.15.18-.31.21-.58.07-.27-.14-1.12-.41-2.14-1.31-.79-.7-1.32-1.56-1.47-1.83-.15-.27-.02-.42.12-.56.12-.12.27-.31.41-.47.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.47-.07-.14-.6-1.44-.82-1.97-.22-.53-.44-.45-.6-.46-.16-.01-.34-.01-.52-.01-.18 0-.47.07-.72.34-.24.27-.94.92-.94 2.24 0 1.32.96 2.59 1.09 2.77.14.18 1.89 2.89 4.59 4.05.64.28 1.14.45 1.53.57.64.2 1.22.17 1.68.1.51-.08 1.58-.64 1.81-1.26.22-.62.22-1.15.15-1.26-.07-.11-.25-.18-.52-.32z"/>
+          <path d="M26.76 5.24A11.92 11.92 0 0 0 16 1a12 12 0 0 0-10.39 17.94L3 31l12.28-2.57A12 12 0 0 0 31 16a11.92 11.92 0 0 0-4.24-10.76zM16 27.52a11.5 11.5 0 0 1-5.87-1.61l-.42-.25-7.14 1.5 1.5-6.95-.27-.45A11.52 11.52 0 1 1 27.52 16 11.54 11.54 0 0 1 16 27.52z"/>
+        </svg>
+      </a>
+
+      {/* Floating Call (right) */}
+      <a
+        href="tel:+923018800022"
         className="fixed z-50 bottom-6 right-6 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full shadow-lg px-4 py-3 flex items-center gap-2 transition-all duration-300 text-lg group"
         style={{ boxShadow: '0 2px 16px 0 rgba(218,165,32,0.25)' }}
       >
