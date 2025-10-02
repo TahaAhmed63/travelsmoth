@@ -9,25 +9,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { MapPin, Phone, Mail, Clock, Send, MessageCircle, Users, Globe } from "lucide-react"
+import { MapPin, Phone, Mail, Clock, Send, MessageCircle, Users, Globe, Facebook, Instagram, LinkedinIcon } from "lucide-react"
 
-const contactInfo = [
+const contactInfo: { icon: any; title: string; details: React.ReactNode[]; color: string }[] = [
   {
     icon: MapPin,
     title: "Visit Our Office",
-    details: ["123 Travel Street", "Adventure City, AC 12345", "United States"],
+    details: [
+      "Office 101, B228",
+      "Midway B Commercial",
+      "Bahria Town Karachi",
+    ],
     color: "bg-gold-100 text-gold-600",
   },
   {
     icon: Phone,
     title: "Call Us",
-    details: ["+1 (555) 123-4567", "+1 (555) 987-6543", "24/7 Emergency Line"],
+    details: [
+      <a key="p1" href="tel:+923018800022" className="hover:underline">0301 880 0022</a>,
+      <a key="p2" href="tel:+923242177731" className="hover:underline">0324 217 7731</a>,
+      <a key="p3" href="tel:+923242100041" className="hover:underline">0324 210 0041</a>,
+      <a key="p4" href="tel:+966581286853" className="hover:underline">+966 58 128 6853</a>,
+    ],
     color: "bg-bronze-100 text-bronze-600",
   },
   {
     icon: Mail,
     title: "Email Us",
-    details: ["info@travelsmooth.com", "bookings@travelsmooth.com", "support@travelsmooth.com"],
+    details: [
+      <a key="e1" href="mailto:Travelsmoothpk@gmail.com" className="hover:underline">Travelsmoothpk@gmail.com</a>,
+    ],
     color: "bg-cream-100 text-bronze-600",
   },
   {
@@ -35,6 +46,17 @@ const contactInfo = [
     title: "Business Hours",
     details: ["Mon - Fri: 9:00 AM - 6:00 PM", "Sat: 10:00 AM - 4:00 PM", "Sun: Closed"],
     color: "bg-gold-100 text-gold-600",
+  },
+  {
+    icon: MessageCircle,
+    title: "Connect With Us",
+    details: [
+      <a key="s1" href="https://www.facebook.com/travelsmoothkhi/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:underline"><Facebook className="w-4 h-4" />Facebook</a>,
+      <a key="s2" href="https://instagram.com/travelsmooth_iata?igshid=MjEwN2IyYWYwYw==" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:underline"><Instagram className="w-4 h-4" />Instagram</a>,
+      <a key="s3" href="https://www.tiktok.com/@travelsmoothiata?_t=8doPyq2hsMD&_r=1" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:underline"><Globe className="w-4 h-4" />TikTok</a>,
+      <a key="s4" href="https://www.linkedin.com/in/travel-smooth-iata-808a8414b" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:underline"><LinkedinIcon className="w-4 h-4" />LinkedIn</a>,
+    ],
+    color: "bg-bronze-100 text-bronze-600",
   },
 ]
 
@@ -147,11 +169,9 @@ export default function ContactPage() {
                     </div>
                     <h3 className="text-xl font-bold text-bronze-900 mb-4">{info.title}</h3>
                     <div className="space-y-2">
-                      {info.details.map((detail, i) => (
-                        <p key={i} className="text-bronze-600">
-                          {detail}
-                        </p>
-                      ))}
+                        {info.details.map((detail, i) => (
+                          <p key={i} className="text-bronze-600">{detail}</p>
+                        ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -211,7 +231,7 @@ export default function ContactPage() {
                           type="tel"
                           value={formData.phone}
                           onChange={(e) => handleInputChange("phone", e.target.value)}
-                          placeholder="+1 (555) 123-4567"
+                          placeholder="0301 880 0022"
                         />
                       </div>
                       <div>
