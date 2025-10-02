@@ -144,8 +144,8 @@ export default function Header() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
-              <div className="relative w-[200px] h-[95px]">
-                <Image src="/travel-smooth-logo.png" alt="Travel Smooth" fill className="object-contain" />
+              <div className="relative w-[180px] h-[80px] md:w-[200px] md:h-[90px]">
+                <Image src="/newlogo.png" alt="Travel Smooth" fill className="object-contain" />
               </div>
               {/* <span className={`text-2xl font-bold transition-colors ${isScrolled ? "text-bronze-900" : "text-white"}`}>
                 Travel Smooth
