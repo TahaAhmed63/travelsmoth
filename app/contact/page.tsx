@@ -16,9 +16,9 @@ const contactInfo: { icon: any; title: string; details: React.ReactNode[]; color
     icon: MapPin,
     title: "Visit Our Office",
     details: [
-      "Office 101, B228",
-      "Midway B Commercial",
-      "Bahria Town Karachi",
+      "OFFICE F17 GROUND FLOOR",
+      "QAMAR ARCADE",
+      "GULSHAN E IQBAL BLOCK 3 KARACHI.",
     ],
     color: "bg-gold-100 text-gold-600",
   },
@@ -325,12 +325,17 @@ export default function ContactPage() {
               {/* Map */}
               <Card className="border-0 shadow-xl">
                 <CardContent className="p-0">
-                  <div className="h-80 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <div className="text-center text-bronze-500">
-                      <MapPin className="w-12 h-12 mx-auto mb-2" />
-                      <p>Interactive Map</p>
-                      <p className="text-sm">Google Maps integration would go here</p>
-                    </div>
+                  <div className="h-80 bg-gray-200 rounded-lg overflow-hidden">
+                    <iframe
+                      title="Travel Smooth Office Location"
+                      src="https://www.google.com/maps?q=OFFICE+F17+GROUND+FLOOR+QAMAR+ARCADE+GULSHAN+E+IQBAL+BLOCK+3+KARACHI&output=embed"
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0, width: "100%", height: "100%" }}
+                      allowFullScreen={true}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    ></iframe>
                   </div>
                 </CardContent>
               </Card>

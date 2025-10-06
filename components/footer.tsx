@@ -66,8 +66,8 @@ export default function Footer() {
                 <div className="flex items-start gap-3 mb-2 justify-center lg:justify-start">
                   <MapPin className="w-5 h-5 text-gold-400 mt-1" />
                   <span className="text-gray-300 leading-snug">
-                    Office 101, B228, Midway B Commercial,<br />
-                    Bahria Town Karachi
+                  OFFICE F17, GROUND FLOOR QAMAR ARCADE,<br /> GULSHAN E IQBAL BLOCK 3 KARACHI.
+                
                   </span>
                 </div>
                 <div className="flex flex-col gap-1 mt-4">
